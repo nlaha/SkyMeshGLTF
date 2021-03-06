@@ -29,4 +29,4 @@ As this project is in the very early stages of development there are several thi
 
         python main.py <in folder> <out folder> <max proceses>
 
-For the above, in folder should contain the "meshes" and "textures" folder from BSA extractor
+For the above, <in folder> should contain the "meshes" and "textures" folder from BSA extractor
