@@ -10,7 +10,6 @@ import operator
 import numpy as np
 from colorama import Fore, Back, Style
 from wand import image
-from pygltflib import ImageFormat, BufferFormat, GLTF2
 from gltf_builder import GLTFFile
 import argparse
 import subprocess as sp
