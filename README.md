@@ -17,6 +17,8 @@ As this project is in the very early stages of development there are several thi
 
 ## Usage
 
+NOTE: < in folder > should contain the "meshes" and "textures" folder from BSA extractor
+
 1. install requirements.txt
 
         pip install -r requirements.txt
@@ -28,7 +30,5 @@ As this project is in the very early stages of development there are several thi
 3. run main.py to process an entire skyrim extraction
 
         python main.py <in folder> <out folder> <max proceses>
-
-For the above, < in folder > should contain the "meshes" and "textures" folder from BSA extractor
 
 ![GLTF rendered in blender](https://i.imgur.com/z7VG05P.jpg)
