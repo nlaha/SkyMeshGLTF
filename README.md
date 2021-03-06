@@ -1,7 +1,12 @@
 # SkyMeshGLTF
 A mesh converter for TESV Skyrim designed to convert every model in the game to a GLTF file with materials and textures.
 
-Works with Skyrim SE if you convert the NIF files to the old file format using [NIF Optimizer](https://www.nexusmods.com/skyrimspecialedition/mods/4089/)
+## Requirements
+
+- BSA Extractor
+- Python 3.6
+
+- Works with Skyrim SE if you convert the NIF files to the old file format using [NIF Optimizer](https://www.nexusmods.com/skyrimspecialedition/mods/4089/)
 
 ## Developer Note
 
