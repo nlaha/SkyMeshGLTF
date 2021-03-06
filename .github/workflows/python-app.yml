@@ -35,5 +35,10 @@ jobs:
       uses: JackMcKew/pyinstaller-action-windows@v0.1.2
       with:
           # Directory containing source code (optional requirements.txt).
-          path: /
+          path: ./
           spec: main.spec
+    - name: Publish Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: name-of-artifact
+        path: dist/SkyMeshGLTF
