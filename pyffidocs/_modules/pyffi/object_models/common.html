@@ -1,0 +1,826 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyffi.object_models.common &#8212; PyFFI 2.2.4.dev4 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PyFFI 2.2.4.dev4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../object_models.html" accesskey="U">pyffi.object_models</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyffi.object_models.common</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyffi.object_models.common</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Implements common basic types in XML file format descriptions.&quot;&quot;&quot;</span>
+
+<span class="c1"># ***** BEGIN LICENSE BLOCK *****</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright (c) 2007-2012, Python File Format Interface.</span>
+<span class="c1"># All rights reserved.</span>
+<span class="c1">#</span>
+<span class="c1"># Redistribution and use in source and binary forms, with or without</span>
+<span class="c1"># modification, are permitted provided that the following conditions</span>
+<span class="c1"># are met:</span>
+<span class="c1">#</span>
+<span class="c1">#    * Redistributions of source code must retain the above copyright</span>
+<span class="c1">#      notice, this list of conditions and the following disclaimer.</span>
+<span class="c1">#</span>
+<span class="c1">#    * Redistributions in binary form must reproduce the above</span>
+<span class="c1">#      copyright notice, this list of conditions and the following</span>
+<span class="c1">#      disclaimer in the documentation and/or other materials provided</span>
+<span class="c1">#      with the distribution.</span>
+<span class="c1">#</span>
+<span class="c1">#    * Neither the name of the Python File Format Interface</span>
+<span class="c1">#      project nor the names of its contributors may be used to endorse</span>
+<span class="c1">#      or promote products derived from this software without specific</span>
+<span class="c1">#      prior written permission.</span>
+<span class="c1">#</span>
+<span class="c1"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS</span>
+<span class="c1"># &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT</span>
+<span class="c1"># LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS</span>
+<span class="c1"># FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE</span>
+<span class="c1"># COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,</span>
+<span class="c1"># INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,</span>
+<span class="c1"># BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;</span>
+<span class="c1"># LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER</span>
+<span class="c1"># CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT</span>
+<span class="c1"># LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN</span>
+<span class="c1"># ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE</span>
+<span class="c1"># POSSIBILITY OF SUCH DAMAGE.</span>
+<span class="c1">#</span>
+<span class="c1"># ***** END LICENSE BLOCK *****</span>
+
+<span class="kn">import</span> <span class="nn">struct</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="kn">from</span> <span class="nn">pyffi.object_models.xml.basic</span> <span class="kn">import</span> <span class="n">BasicBase</span>
+<span class="kn">from</span> <span class="nn">pyffi.object_models.editable</span> <span class="kn">import</span> <span class="n">EditableSpinBox</span>
+<span class="kn">from</span> <span class="nn">pyffi.object_models.editable</span> <span class="kn">import</span> <span class="n">EditableFloatSpinBox</span>
+<span class="kn">from</span> <span class="nn">pyffi.object_models.editable</span> <span class="kn">import</span> <span class="n">EditableLineEdit</span>
+<span class="kn">from</span> <span class="nn">pyffi.object_models.editable</span> <span class="kn">import</span> <span class="n">EditableBoolComboBox</span>
+
+<span class="c1"># TODO get rid of these</span>
+<span class="n">_b</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span>
+<span class="n">_b00</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>
+
+<span class="k">def</span> <span class="nf">_as_bytes</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Helper function which converts a string to bytes (this is useful for</span>
+<span class="sd">    set_value in all string classes, which use bytes for representation).</span>
+
+<span class="sd">    :return: The bytes representing the value.</span>
+<span class="sd">    :rtype: C{bytes}</span>
+
+<span class="sd">    &gt;&gt;&gt; _as_bytes(&quot;\\u00e9defa&quot;) == &quot;\\u00e9defa&quot;.encode(&quot;utf-8&quot;)</span>
+<span class="sd">    True</span>
+
+<span class="sd">    &gt;&gt;&gt; _as_bytes(123) # doctest: +ELLIPSIS</span>
+<span class="sd">    Traceback (most recent call last):</span>
+<span class="sd">        ...</span>
+<span class="sd">    TypeError: ...</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="s2">&quot;replace&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">value</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;expected str&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">_as_str</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Helper function to convert bytes back to str. This is used in</span>
+<span class="sd">    the __str__ functions for simple string types. If you want a custom</span>
+<span class="sd">    encoding, use an explicit decode call on the value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span> <span class="s2">&quot;replace&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">value</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;expected bytes&quot;</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">Int</span><span class="p">(</span><span class="n">BasicBase</span><span class="p">,</span> <span class="n">EditableSpinBox</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Basic implementation of a 32-bit signed integer type. Also serves as a</span>
+<span class="sd">    base class for all other integer types. Follows specified byte order.</span>
+
+<span class="sd">    &gt;&gt;&gt; from tempfile import TemporaryFile</span>
+<span class="sd">    &gt;&gt;&gt; tmp = TemporaryFile()</span>
+<span class="sd">    &gt;&gt;&gt; from pyffi.object_models import FileFormat</span>
+<span class="sd">    &gt;&gt;&gt; data = FileFormat.Data()</span>
+<span class="sd">    &gt;&gt;&gt; i = Int()</span>
+<span class="sd">    &gt;&gt;&gt; i.set_value(-1)</span>
+<span class="sd">    &gt;&gt;&gt; i.get_value()</span>
+<span class="sd">    -1</span>
+<span class="sd">    &gt;&gt;&gt; i.set_value(0x11223344)</span>
+<span class="sd">    &gt;&gt;&gt; i.write(tmp, data)</span>
+<span class="sd">    &gt;&gt;&gt; j = Int()</span>
+<span class="sd">    &gt;&gt;&gt; if tmp.seek(0): pass # ignore result for py3k</span>
+<span class="sd">    &gt;&gt;&gt; j.read(tmp, data)</span>
+<span class="sd">    &gt;&gt;&gt; hex(j.get_value())</span>
+<span class="sd">    &#39;0x11223344&#39;</span>
+<span class="sd">    &gt;&gt;&gt; i.set_value(2**40) # doctest: +ELLIPSIS</span>
+<span class="sd">    Traceback (most recent call last):</span>
+<span class="sd">        ...</span>
+<span class="sd">    ValueError: ...</span>
+<span class="sd">    &gt;&gt;&gt; i.set_value(&#39;hello world&#39;)</span>
+<span class="sd">    Traceback (most recent call last):</span>
+<span class="sd">        ...</span>
+<span class="sd">    ValueError: cannot convert value &#39;hello world&#39; to integer</span>
+<span class="sd">    &gt;&gt;&gt; if tmp.seek(0): pass # ignore result for py3k</span>
+<span class="sd">    &gt;&gt;&gt; if tmp.write(&#39;\x11\x22\x33\x44&#39;.encode(&quot;ascii&quot;)): pass # b&#39;\x11\x22\x33\x44&#39;</span>
+<span class="sd">    &gt;&gt;&gt; if tmp.seek(0): pass # ignore result for py3k</span>
+<span class="sd">    &gt;&gt;&gt; i.read(tmp, data)</span>
+<span class="sd">    &gt;&gt;&gt; hex(i.get_value())</span>
+<span class="sd">    &#39;0x44332211&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_min</span> <span class="o">=</span> <span class="o">-</span><span class="mh">0x80000000</span> <span class="c1">#: Minimum value.</span>
+    <span class="n">_max</span> <span class="o">=</span> <span class="mh">0x7fffffff</span>  <span class="c1">#: Maximum value.</span>
+    <span class="n">_struct</span> <span class="o">=</span> <span class="s1">&#39;i&#39;</span>      <span class="c1">#: Character used to represent type in struct.</span>
+    <span class="n">_size</span> <span class="o">=</span> <span class="mi">4</span>          <span class="c1">#: Number of bytes.</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the integer.&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Int</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return stored value.</span>
+
+<span class="sd">        :return: The stored value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
+
+    <span class="k">def</span> <span class="nf">set_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set value to C{value}. Calls C{int(value)} to convert to integer.</span>
+
+<span class="sd">        :param value: The value to assign.</span>
+<span class="sd">        :type value: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span> <span class="c1"># for &#39;0x...&#39; strings</span>
+            <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="c1"># for enums</span>
+                <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="s2">&quot;cannot convert value &#39;</span><span class="si">%s</span><span class="s2">&#39; to integer&quot;</span><span class="o">%</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">val</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min</span> <span class="ow">or</span> <span class="n">val</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;value out of range (</span><span class="si">%i</span><span class="s1">)&#39;</span> <span class="o">%</span> <span class="n">val</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">val</span>
+
+    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read value from stream.</span>
+
+<span class="sd">        :param stream: The stream to read from.</span>
+<span class="sd">        :type stream: file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">_byte_order</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_struct</span><span class="p">,</span>
+                                    <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_size</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write value to stream.</span>
+
+<span class="sd">        :param stream: The stream to write to.</span>
+<span class="sd">        :type stream: file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">_byte_order</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_struct</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">())</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_size</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return number of bytes this type occupies in a file.</span>
+
+<span class="sd">        :return: Number of bytes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_size</span>
+
+    <span class="k">def</span> <span class="nf">get_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a hash value for this value.</span>
+
+<span class="sd">        :return: An immutable object that can be used as a hash.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">get_editor_minimum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Minimum possible value.</span>
+
+<span class="sd">        :return: Minimum possible value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_min</span>
+
+    <span class="k">def</span> <span class="nf">get_editor_maximum</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Maximum possible value.</span>
+
+<span class="sd">        :return: Maximum possible value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_max</span>
+
+<span class="k">class</span> <span class="nc">UInt</span><span class="p">(</span><span class="n">Int</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Implementation of a 32-bit unsigned integer type.&quot;&quot;&quot;</span>
+    <span class="n">_min</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">_max</span> <span class="o">=</span> <span class="mh">0xffffffff</span>
+    <span class="n">_struct</span> <span class="o">=</span> <span class="s1">&#39;I&#39;</span>
+    <span class="n">_size</span> <span class="o">=</span> <span class="mi">4</span>
+
+<span class="k">class</span> <span class="nc">Int64</span><span class="p">(</span><span class="n">Int</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Implementation of a 64-bit signed integer type.&quot;&quot;&quot;</span>
+    <span class="n">_min</span> <span class="o">=</span> <span class="o">-</span><span class="mh">0x8000000000000000</span>
+    <span class="n">_max</span> <span class="o">=</span> <span class="mh">0x7fffffffffffffff</span>
+    <span class="n">_struct</span> <span class="o">=</span> <span class="s1">&#39;q&#39;</span>
+    <span class="n">_size</span> <span class="o">=</span> <span class="mi">8</span>
+
+<span class="k">class</span> <span class="nc">UInt64</span><span class="p">(</span><span class="n">Int</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Implementation of a 64-bit unsigned integer type.&quot;&quot;&quot;</span>
+    <span class="n">_min</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">_max</span> <span class="o">=</span> <span class="mh">0xffffffffffffffff</span>
+    <span class="n">_struct</span> <span class="o">=</span> <span class="s1">&#39;Q&#39;</span>
+    <span class="n">_size</span> <span class="o">=</span> <span class="mi">8</span>
+
+<span class="k">class</span> <span class="nc">Byte</span><span class="p">(</span><span class="n">Int</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Implementation of a 8-bit signed integer type.&quot;&quot;&quot;</span>
+    <span class="n">_min</span> <span class="o">=</span> <span class="o">-</span><span class="mh">0x80</span>
+    <span class="n">_max</span> <span class="o">=</span> <span class="mh">0x7f</span>
+    <span class="n">_struct</span> <span class="o">=</span> <span class="s1">&#39;b&#39;</span>
+    <span class="n">_size</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="k">class</span> <span class="nc">UByte</span><span class="p">(</span><span class="n">Int</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Implementation of a 8-bit unsigned integer type.&quot;&quot;&quot;</span>
+    <span class="n">_min</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">_max</span> <span class="o">=</span> <span class="mh">0xff</span>
+    <span class="n">_struct</span> <span class="o">=</span> <span class="s1">&#39;B&#39;</span>
+    <span class="n">_size</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="k">class</span> <span class="nc">Short</span><span class="p">(</span><span class="n">Int</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Implementation of a 16-bit signed integer type.&quot;&quot;&quot;</span>
+    <span class="n">_min</span> <span class="o">=</span> <span class="o">-</span><span class="mh">0x8000</span>
+    <span class="n">_max</span> <span class="o">=</span> <span class="mh">0x7fff</span>
+    <span class="n">_struct</span> <span class="o">=</span> <span class="s1">&#39;h&#39;</span>
+    <span class="n">_size</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="k">class</span> <span class="nc">UShort</span><span class="p">(</span><span class="n">UInt</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Implementation of a 16-bit unsigned integer type.&quot;&quot;&quot;</span>
+    <span class="n">_min</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">_max</span> <span class="o">=</span> <span class="mh">0xffff</span>
+    <span class="n">_struct</span> <span class="o">=</span> <span class="s1">&#39;H&#39;</span>
+    <span class="n">_size</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="k">class</span> <span class="nc">ULittle32</span><span class="p">(</span><span class="n">UInt</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Little endian 32 bit unsigned integer (ignores specified data</span>
+<span class="sd">    byte order).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read value from stream.</span>
+
+<span class="sd">        :param stream: The stream to read from.</span>
+<span class="sd">        :type stream: file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s1">&#39;&lt;&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_struct</span><span class="p">,</span>
+                                    <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_size</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write value to stream.</span>
+
+<span class="sd">        :param stream: The stream to write to.</span>
+<span class="sd">        :type stream: file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s1">&#39;&lt;&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_struct</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">))</span>
+
+<span class="k">class</span> <span class="nc">Bool</span><span class="p">(</span><span class="n">UByte</span><span class="p">,</span> <span class="n">EditableBoolComboBox</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Simple bool implementation.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return stored value.</span>
+
+<span class="sd">        :return: The stored value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">set_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set value to C{value}.</span>
+
+<span class="sd">        :param value: The value to assign.</span>
+<span class="sd">        :type value: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">value</span> <span class="k">else</span> <span class="mi">0</span>
+
+<span class="k">class</span> <span class="nc">Char</span><span class="p">(</span><span class="n">BasicBase</span><span class="p">,</span> <span class="n">EditableLineEdit</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Implementation of an (unencoded) 8-bit character.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the character.&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Char</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span>
+
+    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return stored value.</span>
+
+<span class="sd">        :return: The stored value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
+
+    <span class="k">def</span> <span class="nf">set_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set character to C{value}.</span>
+
+<span class="sd">        :param value: The value to assign (bytes of length 1).</span>
+<span class="sd">        :type value: bytes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">))</span>
+        <span class="k">assert</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read value from stream.</span>
+
+<span class="sd">        :param stream: The stream to read from.</span>
+<span class="sd">        :type stream: file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write value to stream.</span>
+
+<span class="sd">        :param stream: The stream to write to.</span>
+<span class="sd">        :type stream: file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_as_str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return number of bytes this type occupies in a file.</span>
+
+<span class="sd">        :return: Number of bytes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">get_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a hash value for this value.</span>
+
+<span class="sd">        :return: An immutable object that can be used as a hash.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">()</span>
+
+<span class="k">class</span> <span class="nc">Float</span><span class="p">(</span><span class="n">BasicBase</span><span class="p">,</span> <span class="n">EditableFloatSpinBox</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Implementation of a 32-bit float.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the float.&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Float</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return stored value.</span>
+
+<span class="sd">        :return: The stored value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
+
+    <span class="k">def</span> <span class="nf">set_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set value to C{value}.</span>
+
+<span class="sd">        :param value: The value to assign.</span>
+<span class="sd">        :type value: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read value from stream.</span>
+
+<span class="sd">        :param stream: The stream to read from.</span>
+<span class="sd">        :type stream: file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">_byte_order</span> <span class="o">+</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span>
+                                    <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write value to stream.</span>
+
+<span class="sd">        :param stream: The stream to write to.</span>
+<span class="sd">        :type stream: file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">_byte_order</span> <span class="o">+</span> <span class="s1">&#39;f&#39;</span><span class="p">,</span>
+                                     <span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">))</span>
+        <span class="k">except</span> <span class="ne">OverflowError</span><span class="p">:</span>
+            <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;pyffi.object_models&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;float value overflow, writing NaN&quot;</span><span class="p">)</span>
+            <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">_byte_order</span> <span class="o">+</span> <span class="s1">&#39;I&#39;</span><span class="p">,</span>
+                                     <span class="mh">0x7fc00000</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">get_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return number of bytes this type occupies in a file.</span>
+
+<span class="sd">        :return: Number of bytes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mi">4</span>
+
+    <span class="k">def</span> <span class="nf">get_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a hash value for this value. Currently implemented</span>
+<span class="sd">        with precision 1/200.</span>
+
+<span class="sd">        :return: An immutable object that can be used as a hash.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">()</span><span class="o">*</span><span class="mi">200</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">ZString</span><span class="p">(</span><span class="n">BasicBase</span><span class="p">,</span> <span class="n">EditableLineEdit</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;String of variable length (null terminated).</span>
+
+<span class="sd">    &gt;&gt;&gt; from tempfile import TemporaryFile</span>
+<span class="sd">    &gt;&gt;&gt; f = TemporaryFile()</span>
+<span class="sd">    &gt;&gt;&gt; s = ZString()</span>
+<span class="sd">    &gt;&gt;&gt; if f.write(&#39;abcdefghijklmnopqrst\\x00&#39;.encode(&quot;ascii&quot;)): pass # b&#39;abc...&#39;</span>
+<span class="sd">    &gt;&gt;&gt; if f.seek(0): pass # ignore result for py3k</span>
+<span class="sd">    &gt;&gt;&gt; s.read(f)</span>
+<span class="sd">    &gt;&gt;&gt; str(s)</span>
+<span class="sd">    &#39;abcdefghijklmnopqrst&#39;</span>
+<span class="sd">    &gt;&gt;&gt; if f.seek(0): pass # ignore result for py3k</span>
+<span class="sd">    &gt;&gt;&gt; s.set_value(&#39;Hi There!&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; s.write(f)</span>
+<span class="sd">    &gt;&gt;&gt; if f.seek(0): pass # ignore result for py3k</span>
+<span class="sd">    &gt;&gt;&gt; m = ZString()</span>
+<span class="sd">    &gt;&gt;&gt; m.read(f)</span>
+<span class="sd">    &gt;&gt;&gt; str(m)</span>
+<span class="sd">    &#39;Hi There!&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_maxlen</span> <span class="o">=</span> <span class="mi">1000</span> <span class="c1">#: The maximum length.</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the string.&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ZString</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_as_str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the string.</span>
+
+<span class="sd">        :return: The stored string.</span>
+<span class="sd">        :rtype: C{bytes}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">_as_str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">set_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set string to C{value}.</span>
+
+<span class="sd">        :param value: The value to assign.</span>
+<span class="sd">        :type value: ``str`` (will be encoded as default) or C{bytes}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">_as_bytes</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">val</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_maxlen</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;string too long&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">val</span>
+
+    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read string from stream.</span>
+
+<span class="sd">        :param stream: The stream to read from.</span>
+<span class="sd">        :type stream: file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span>
+        <span class="n">char</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span>
+        <span class="k">while</span> <span class="n">char</span> <span class="o">!=</span> <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_maxlen</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;string too long&#39;</span><span class="p">)</span>
+            <span class="n">val</span> <span class="o">+=</span> <span class="n">char</span>
+            <span class="n">char</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">val</span>
+
+    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write string to stream.</span>
+
+<span class="sd">        :param stream: The stream to write to.</span>
+<span class="sd">        :type stream: file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span>
+        <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return number of bytes this type occupies in a file.</span>
+
+<span class="sd">        :return: Number of bytes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+
+    <span class="k">def</span> <span class="nf">get_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a hash value for this string.</span>
+
+<span class="sd">        :return: An immutable object that can be used as a hash.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
+
+<span class="k">class</span> <span class="nc">FixedString</span><span class="p">(</span><span class="n">BasicBase</span><span class="p">,</span> <span class="n">EditableLineEdit</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;String of fixed length. Default length is 0, so you must override</span>
+<span class="sd">    this class and set the _len class variable.</span>
+
+<span class="sd">    &gt;&gt;&gt; from tempfile import TemporaryFile</span>
+<span class="sd">    &gt;&gt;&gt; f = TemporaryFile()</span>
+<span class="sd">    &gt;&gt;&gt; class String8(FixedString):</span>
+<span class="sd">    ...     _len = 8</span>
+<span class="sd">    &gt;&gt;&gt; s = String8()</span>
+<span class="sd">    &gt;&gt;&gt; _ = f.write(&#39;abcdefghij&#39;.encode())</span>
+<span class="sd">    &gt;&gt;&gt; _ = f.seek(0)</span>
+<span class="sd">    &gt;&gt;&gt; s.read(f)</span>
+<span class="sd">    &gt;&gt;&gt; str(s)</span>
+<span class="sd">    &#39;abcdefgh&#39;</span>
+<span class="sd">    &gt;&gt;&gt; _ = f.seek(0)</span>
+<span class="sd">    &gt;&gt;&gt; s.set_value(&#39;Hi There&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; s.write(f)</span>
+<span class="sd">    &gt;&gt;&gt; _ = f.seek(0)</span>
+<span class="sd">    &gt;&gt;&gt; m = String8()</span>
+<span class="sd">    &gt;&gt;&gt; m.read(f)</span>
+<span class="sd">    &gt;&gt;&gt; str(m)</span>
+<span class="sd">    &#39;Hi There&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_len</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the string.&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">FixedString</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_as_str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the string.</span>
+
+<span class="sd">        :return: The stored string.</span>
+<span class="sd">        :rtype: C{bytes}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
+
+    <span class="k">def</span> <span class="nf">set_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set string to C{value}.</span>
+
+<span class="sd">        :param value: The value to assign.</span>
+<span class="sd">        :type value: ``str`` (encoded as default) or C{bytes}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">_as_bytes</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_len</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;string &#39;</span><span class="si">%s</span><span class="s2">&#39; too long&quot;</span> <span class="o">%</span> <span class="n">val</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">val</span>
+
+    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read string from stream.</span>
+
+<span class="sd">        :param stream: The stream to read from.</span>
+<span class="sd">        :type stream: file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_len</span><span class="p">)</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">[:</span><span class="n">i</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write string to stream.</span>
+
+<span class="sd">        :param stream: The stream to write to.</span>
+<span class="sd">        :type stream: file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_len</span><span class="p">,</span> <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x00</span><span class="s1">&#39;</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">get_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return number of bytes this type occupies in a file.</span>
+
+<span class="sd">        :return: Number of bytes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_len</span>
+
+    <span class="k">def</span> <span class="nf">get_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a hash value for this string.</span>
+
+<span class="sd">        :return: An immutable object that can be used as a hash.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
+
+<span class="k">class</span> <span class="nc">SizedString</span><span class="p">(</span><span class="n">BasicBase</span><span class="p">,</span> <span class="n">EditableLineEdit</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Basic type for strings. The type starts with an unsigned int which</span>
+<span class="sd">    describes the length of the string.</span>
+
+<span class="sd">    &gt;&gt;&gt; from tempfile import TemporaryFile</span>
+<span class="sd">    &gt;&gt;&gt; f = TemporaryFile()</span>
+<span class="sd">    &gt;&gt;&gt; from pyffi.object_models import FileFormat</span>
+<span class="sd">    &gt;&gt;&gt; data = FileFormat.Data()</span>
+<span class="sd">    &gt;&gt;&gt; s = SizedString()</span>
+<span class="sd">    &gt;&gt;&gt; if f.write(&#39;\\x07\\x00\\x00\\x00abcdefg&#39;.encode(&quot;ascii&quot;)): pass # ignore result for py3k</span>
+<span class="sd">    &gt;&gt;&gt; if f.seek(0): pass # ignore result for py3k</span>
+<span class="sd">    &gt;&gt;&gt; s.read(f, data)</span>
+<span class="sd">    &gt;&gt;&gt; str(s)</span>
+<span class="sd">    &#39;abcdefg&#39;</span>
+<span class="sd">    &gt;&gt;&gt; if f.seek(0): pass # ignore result for py3k</span>
+<span class="sd">    &gt;&gt;&gt; s.set_value(&#39;Hi There&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; s.write(f, data)</span>
+<span class="sd">    &gt;&gt;&gt; if f.seek(0): pass # ignore result for py3k</span>
+<span class="sd">    &gt;&gt;&gt; m = SizedString()</span>
+<span class="sd">    &gt;&gt;&gt; m.read(f, data)</span>
+<span class="sd">    &gt;&gt;&gt; str(m)</span>
+<span class="sd">    &#39;Hi There&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the string.&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SizedString</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the string.</span>
+
+<span class="sd">        :return: The stored string.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
+
+    <span class="k">def</span> <span class="nf">set_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set string to C{value}.</span>
+
+<span class="sd">        :param value: The value to assign.</span>
+<span class="sd">        :type value: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">_as_bytes</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">10000</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;string too long&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">val</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_as_str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return number of bytes this type occupies in a file.</span>
+
+<span class="sd">        :return: Number of bytes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="mi">4</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a hash value for this string.</span>
+
+<span class="sd">        :return: An immutable object that can be used as a hash.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read string from stream.</span>
+
+<span class="sd">        :param stream: The stream to read from.</span>
+<span class="sd">        :type stream: file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">length</span><span class="p">,</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">_byte_order</span> <span class="o">+</span> <span class="s1">&#39;I&#39;</span><span class="p">,</span>
+                                <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">length</span> <span class="o">&gt;</span> <span class="mi">10000</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;string too long (0x</span><span class="si">%08X</span><span class="s1"> at 0x</span><span class="si">%08X</span><span class="s1">)&#39;</span>
+                             <span class="o">%</span> <span class="p">(</span><span class="n">length</span><span class="p">,</span> <span class="n">stream</span><span class="o">.</span><span class="n">tell</span><span class="p">()))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">length</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write string to stream.</span>
+
+<span class="sd">        :param stream: The stream to write to.</span>
+<span class="sd">        :type stream: file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">_byte_order</span> <span class="o">+</span> <span class="s1">&#39;I&#39;</span><span class="p">,</span>
+                                 <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">)))</span>
+        <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">UndecodedData</span><span class="p">(</span><span class="n">BasicBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Basic type for undecoded data trailing at the end of a file.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">BasicBase</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">get_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return stored value.</span>
+
+<span class="sd">        :return: The stored value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
+
+    <span class="k">def</span> <span class="nf">set_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set value to C{value}.</span>
+
+<span class="sd">        :param value: The value to assign.</span>
+<span class="sd">        :type value: bytes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">16000000</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;data too long&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s1">&#39;&lt;UNDECODED DATA&gt;&#39;</span>
+
+    <span class="k">def</span> <span class="nf">get_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return number of bytes the data occupies in a file.</span>
+
+<span class="sd">        :return: Number of bytes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a hash value for this value.</span>
+
+<span class="sd">        :return: An immutable object that can be used as a hash.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_value</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read data from stream. Note that this function simply</span>
+<span class="sd">        reads until the end of the stream.</span>
+
+<span class="sd">        :param stream: The stream to read from.</span>
+<span class="sd">        :type stream: file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write data to stream.</span>
+
+<span class="sd">        :param stream: The stream to write to.</span>
+<span class="sd">        :type stream: file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_value</span><span class="p">)</span>
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PyFFI 2.2.4.dev4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="../object_models.html" >pyffi.object_models</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyffi.object_models.common</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2019, NifTools.
+      Last updated on Jan 26, 2021.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+    </div>
+  </body>
+</html>

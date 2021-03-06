@@ -1,0 +1,1577 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyffi.spells &#8212; PyFFI 2.2.4.dev4 documentation</title>
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">PyFFI 2.2.4.dev4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyffi.spells</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyffi.spells</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">:mod:`pyffi.spells` --- High level file operations</span>
+<span class="sd">==================================================</span>
+
+<span class="sd">.. note::</span>
+<span class="sd">   </span>
+<span class="sd">   This module is based on wz&#39;s NifTester module, although</span>
+<span class="sd">   nothing of wz&#39;s original code is left in this module.</span>
+
+<span class="sd">A :term:`toaster`, implemented by subclasses of the abstract</span>
+<span class="sd">:class:`Toaster` class, walks over all files in a folder, and applies</span>
+<span class="sd">one or more transformations on each file. Such transformations are</span>
+<span class="sd">called :term:`spell`\ s, and are implemented by subclasses of the</span>
+<span class="sd">abstract :class:`Spell` class.</span>
+
+<span class="sd">A :term:`spell` can also run independently of a :term:`toaster` and be</span>
+<span class="sd">applied on a branch directly. The recommended way of doing this is via</span>
+<span class="sd">the :meth:`Spell.recurse` method.</span>
+
+<span class="sd">Supported spells</span>
+<span class="sd">----------------</span>
+
+<span class="sd">For format specific spells, refer to the corresponding module.</span>
+
+<span class="sd">.. toctree::</span>
+<span class="sd">   :maxdepth: 2</span>
+<span class="sd">   </span>
+<span class="sd">   cgf</span>
+<span class="sd">   dds</span>
+<span class="sd">   kfm</span>
+<span class="sd">   nif</span>
+<span class="sd">   tga</span>
+
+<span class="sd">Some spells are applicable on every file format, and those are documented</span>
+<span class="sd">here.</span>
+
+<span class="sd">.. autoclass:: SpellApplyPatch</span>
+<span class="sd">   :show-inheritance:</span>
+<span class="sd">   :members:</span>
+
+<span class="sd">Adding new spells</span>
+<span class="sd">-----------------</span>
+
+<span class="sd">To create new spells, derive your custom spells from the :class:`Spell`</span>
+<span class="sd">class, and include them in the :attr:`Toaster.SPELLS` attribute of your</span>
+<span class="sd">toaster.</span>
+
+<span class="sd">.. autoclass:: Spell</span>
+<span class="sd">   :show-inheritance:</span>
+<span class="sd">   :members: READONLY, SPELLNAME, data, stream, toaster,</span>
+<span class="sd">             __init__, recurse, _datainspect, datainspect, _branchinspect,</span>
+<span class="sd">             branchinspect, dataentry, dataexit, branchentry,</span>
+<span class="sd">             branchexit, toastentry, toastexit</span>
+
+<span class="sd">Grouping spells together</span>
+<span class="sd">------------------------</span>
+
+<span class="sd">It is also possible to create composite spells, that is, spells that</span>
+<span class="sd">simply execute other spells. The following functions and classes can</span>
+<span class="sd">be used for this purpose.</span>
+
+<span class="sd">.. autofunction:: SpellGroupParallel</span>
+
+<span class="sd">.. autofunction:: SpellGroupSeries</span>
+
+<span class="sd">.. autoclass:: SpellGroupBase</span>
+<span class="sd">   :show-inheritance:</span>
+<span class="sd">   :members:</span>
+<span class="sd">   :undoc-members:</span>
+<span class="sd">   </span>
+
+<span class="sd">.. autoclass:: SpellGroupParallelBase</span>
+<span class="sd">   :show-inheritance:</span>
+<span class="sd">   :members:</span>
+<span class="sd">   :undoc-members:</span>
+<span class="sd">   </span>
+
+<span class="sd">.. autoclass:: SpellGroupSeriesBase</span>
+<span class="sd">   :show-inheritance:</span>
+<span class="sd">   :members:</span>
+<span class="sd">   :undoc-members:</span>
+
+<span class="sd">Creating toaster scripts</span>
+<span class="sd">------------------------</span>
+
+<span class="sd">To create a new toaster script, derive your toaster from the :class:`Toaster`</span>
+<span class="sd">class, and set the :attr:`Toaster.FILEFORMAT` attribute of your toaster to</span>
+<span class="sd">the file format class of the files it can toast.</span>
+
+<span class="sd">.. autoclass:: Toaster</span>
+<span class="sd">   :show-inheritance:</span>
+<span class="sd">   :members:</span>
+<span class="sd">   :inherited-members:</span>
+<span class="sd">   :undoc-members:</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># --------------------------------------------------------------------------</span>
+<span class="c1"># ***** BEGIN LICENSE BLOCK *****</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright (c) 2007-2012, Python File Format Interface</span>
+<span class="c1"># All rights reserved.</span>
+<span class="c1">#</span>
+<span class="c1"># Redistribution and use in source and binary forms, with or without</span>
+<span class="c1"># modification, are permitted provided that the following conditions</span>
+<span class="c1"># are met:</span>
+<span class="c1">#</span>
+<span class="c1">#    * Redistributions of source code must retain the above copyright</span>
+<span class="c1">#      notice, this list of conditions and the following disclaimer.</span>
+<span class="c1">#</span>
+<span class="c1">#    * Redistributions in binary form must reproduce the above</span>
+<span class="c1">#      copyright notice, this list of conditions and the following</span>
+<span class="c1">#      disclaimer in the documentation and/or other materials provided</span>
+<span class="c1">#      with the distribution.</span>
+<span class="c1">#</span>
+<span class="c1">#    * Neither the name of the Python File Format Interface</span>
+<span class="c1">#      project nor the names of its contributors may be used to endorse</span>
+<span class="c1">#      or promote products derived from this software without specific</span>
+<span class="c1">#      prior written permission.</span>
+<span class="c1">#</span>
+<span class="c1"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS</span>
+<span class="c1"># &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT</span>
+<span class="c1"># LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS</span>
+<span class="c1"># FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE</span>
+<span class="c1"># COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,</span>
+<span class="c1"># INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,</span>
+<span class="c1"># BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;</span>
+<span class="c1"># LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER</span>
+<span class="c1"># CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT</span>
+<span class="c1"># LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN</span>
+<span class="c1"># ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE</span>
+<span class="c1"># POSSIBILITY OF SUCH DAMAGE.</span>
+<span class="c1">#</span>
+<span class="c1"># ***** END LICENSE BLOCK *****</span>
+<span class="c1"># --------------------------------------------------------------------------</span>
+
+
+<span class="kn">from</span> <span class="nn">configparser</span> <span class="kn">import</span> <span class="n">ConfigParser</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">import</span> <span class="nn">gc</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>  <span class="c1"># Logger</span>
+<span class="kn">import</span> <span class="nn">concurrent.futures</span>  <span class="c1"># ProcessPoolExecutor</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span>  <span class="c1"># current_process, cpu_count</span>
+<span class="kn">import</span> <span class="nn">optparse</span>
+<span class="kn">import</span> <span class="nn">os</span>  <span class="c1"># remove</span>
+<span class="kn">import</span> <span class="nn">os.path</span>  <span class="c1"># getsize, split, join</span>
+<span class="kn">import</span> <span class="nn">re</span>  <span class="c1"># for regex parsing (--skip, --only)</span>
+<span class="kn">import</span> <span class="nn">shlex</span>  <span class="c1"># shlex.split for parsing option lists in ini files</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+
+<span class="kn">import</span> <span class="nn">pyffi</span>  <span class="c1"># for pyffi.__version__</span>
+<span class="kn">import</span> <span class="nn">pyffi.object_models</span>  <span class="c1"># pyffi.object_models.FileFormat</span>
+
+
+<div class="viewcode-block" id="Spell"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.Spell">[docs]</a><span class="k">class</span> <span class="nc">Spell</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Spell base class. A spell takes a data file and then does something</span>
+<span class="sd">    useful with it. The main entry point for spells is :meth:`recurse`, so if you</span>
+<span class="sd">    are writing new spells, start with reading the documentation with</span>
+<span class="sd">    :meth:`recurse`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;The :class:`~pyffi.object_models.FileFormat.Data` instance</span>
+<span class="sd">    this spell acts on.&quot;&quot;&quot;</span>
+
+    <span class="n">stream</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;The current ``file`` being processed.&quot;&quot;&quot;</span>
+
+    <span class="n">toaster</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;The :class:`Toaster` instance this spell is called from.&quot;&quot;&quot;</span>
+
+    <span class="n">changed</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="sd">&quot;&quot;&quot;Whether the spell changed the data. If ``True``, the file will be</span>
+<span class="sd">    written back, otherwise not.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">reports</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;Any information the spell wants to report back to the toaster</span>
+<span class="sd">    (used for instance for regression testing).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># spells are readonly by default</span>
+    <span class="n">READONLY</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="sd">&quot;&quot;&quot;A ``bool`` which determines whether the spell is read only or</span>
+<span class="sd">    not. Default value is ``True``. Override this class attribute, and</span>
+<span class="sd">    set to ``False``, when subclassing a spell that must write files</span>
+<span class="sd">    back to the disk.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">SPELLNAME</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="sd">&quot;&quot;&quot;A ``str`` describing how to refer to the spell from the command line.</span>
+<span class="sd">    Override this class attribute when subclassing.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Spell.__init__"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.Spell.__init__">[docs]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">toaster</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the spell data.</span>
+
+<span class="sd">        :param data: The file :attr:`data`.</span>
+<span class="sd">        :type data: :class:`~pyffi.object_models.FileFormat.Data`</span>
+<span class="sd">        :param stream: The file :attr:`stream`.</span>
+<span class="sd">        :type stream: ``file``</span>
+<span class="sd">        :param toaster: The :attr:`toaster` this spell is called from (optional).</span>
+<span class="sd">        :type toaster: :class:`Toaster`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stream</span> <span class="o">=</span> <span class="n">stream</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">toaster</span> <span class="o">=</span> <span class="n">toaster</span> <span class="k">if</span> <span class="n">toaster</span> <span class="k">else</span> <span class="n">Toaster</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Spell._datainspect"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.Spell._datainspect">[docs]</a>    <span class="k">def</span> <span class="nf">_datainspect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This is called after :meth:`pyffi.object_models.FileFormat.Data.inspect` has</span>
+<span class="sd">        been called, and before :meth:`pyffi.object_models.FileFormat.Data.read` is</span>
+<span class="sd">        called.</span>
+
+<span class="sd">        :return: ``True`` if the file must be processed, ``False`` otherwise.</span>
+<span class="sd">        :rtype: ``bool``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># for the moment, this does nothing</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Spell.datainspect"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.Spell.datainspect">[docs]</a>    <span class="k">def</span> <span class="nf">datainspect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This is called after :meth:`pyffi.object_models.FileFormat.Data.inspect` has</span>
+<span class="sd">        been called, and before :meth:`pyffi.object_models.FileFormat.Data.read` is</span>
+<span class="sd">        called. Override this function for customization.</span>
+
+<span class="sd">        :return: ``True`` if the file must be processed, ``False`` otherwise.</span>
+<span class="sd">        :rtype: ``bool``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># for nif: check if version applies, or</span>
+        <span class="c1"># check if spell block type is found</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Spell._branchinspect"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.Spell._branchinspect">[docs]</a>    <span class="k">def</span> <span class="nf">_branchinspect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">branch</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check if spell should be cast on this branch or not, based on</span>
+<span class="sd">        exclude and include options passed on the command line. You should</span>
+<span class="sd">        not need to override this function: if you need additional checks on</span>
+<span class="sd">        whether a branch must be parsed or not, override the :meth:`branchinspect`</span>
+<span class="sd">        method.</span>
+
+<span class="sd">        :param branch: The branch to check.</span>
+<span class="sd">        :type branch: :class:`~pyffi.utils.graph.GlobalNode`</span>
+<span class="sd">        :return: ``True`` if the branch must be processed, ``False`` otherwise.</span>
+<span class="sd">        :rtype: ``bool``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># fall back on the toaster implementation</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">toaster</span><span class="o">.</span><span class="n">is_admissible_branch_class</span><span class="p">(</span><span class="n">branch</span><span class="o">.</span><span class="vm">__class__</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Spell.branchinspect"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.Spell.branchinspect">[docs]</a>    <span class="k">def</span> <span class="nf">branchinspect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">branch</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Like :meth:`_branchinspect`, but for customization: can be overridden to</span>
+<span class="sd">        perform an extra inspection (the default implementation always</span>
+<span class="sd">        returns ``True``).</span>
+
+<span class="sd">        :param branch: The branch to check.</span>
+<span class="sd">        :type branch: :class:`~pyffi.utils.graph.GlobalNode`</span>
+<span class="sd">        :return: ``True`` if the branch must be processed, ``False`` otherwise.</span>
+<span class="sd">        :rtype: ``bool``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Spell.recurse"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.Spell.recurse">[docs]</a>    <span class="k">def</span> <span class="nf">recurse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Helper function which calls :meth:`_branchinspect` and :meth:`branchinspect`</span>
+<span class="sd">        on the branch,</span>
+<span class="sd">        if both successful then :meth:`branchentry` on the branch, and if this is</span>
+<span class="sd">        succesful it calls :meth:`recurse` on the branch&#39;s children, and</span>
+<span class="sd">        once all children are done, it calls :meth:`branchexit`.</span>
+
+<span class="sd">        Note that :meth:`_branchinspect` and :meth:`branchinspect` are not called upon</span>
+<span class="sd">        first entry of this function, that is, when called with :attr:`data` as</span>
+<span class="sd">        branch argument. Use :meth:`datainspect` to stop recursion into this branch.</span>
+
+<span class="sd">        Do not override this function.</span>
+
+<span class="sd">        :param branch: The branch to start the recursion from, or ``None``</span>
+<span class="sd">            to recurse the whole tree.</span>
+<span class="sd">        :type branch: :class:`~pyffi.utils.graph.GlobalNode`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># when called without arguments, recurse over the whole tree</span>
+        <span class="k">if</span> <span class="n">branch</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">branch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span>
+        <span class="c1"># the root data element: datainspect has already been called</span>
+        <span class="k">if</span> <span class="n">branch</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">toaster</span><span class="o">.</span><span class="n">msgblockbegin</span><span class="p">(</span>
+                <span class="s2">&quot;--- </span><span class="si">%s</span><span class="s2"> ---&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">SPELLNAME</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dataentry</span><span class="p">():</span>
+                <span class="c1"># spell returned True so recurse to children</span>
+                <span class="c1"># we use the abstract tree functions to parse the tree</span>
+                <span class="c1"># these are format independent!</span>
+                <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">branch</span><span class="o">.</span><span class="n">get_global_child_nodes</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">recurse</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dataexit</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">toaster</span><span class="o">.</span><span class="n">msgblockend</span><span class="p">()</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_branchinspect</span><span class="p">(</span><span class="n">branch</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">branchinspect</span><span class="p">(</span><span class="n">branch</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">toaster</span><span class="o">.</span><span class="n">msgblockbegin</span><span class="p">(</span>
+                <span class="sd">&quot;&quot;&quot;~~~ %s [%s] ~~~&quot;&quot;&quot;</span>
+                <span class="o">%</span> <span class="p">(</span><span class="n">branch</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+                   <span class="n">branch</span><span class="o">.</span><span class="n">get_global_display</span><span class="p">()))</span>
+            <span class="c1"># cast the spell on the branch</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">branchentry</span><span class="p">(</span><span class="n">branch</span><span class="p">):</span>
+                <span class="c1"># spell returned True so recurse to children</span>
+                <span class="c1"># we use the abstract tree functions to parse the tree</span>
+                <span class="c1"># these are format independent!</span>
+                <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="n">branch</span><span class="o">.</span><span class="n">get_global_child_nodes</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">recurse</span><span class="p">(</span><span class="n">child</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">branchexit</span><span class="p">(</span><span class="n">branch</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">toaster</span><span class="o">.</span><span class="n">msgblockend</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Spell.dataentry"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.Spell.dataentry">[docs]</a>    <span class="k">def</span> <span class="nf">dataentry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Called before all blocks are recursed.</span>
+<span class="sd">        The default implementation simply returns ``True``.</span>
+<span class="sd">        You can access the data via :attr:`data`, and unlike in the</span>
+<span class="sd">        :meth:`datainspect` method, the full file has been processed at this stage.</span>
+
+<span class="sd">        Typically, you will override this function to perform a global</span>
+<span class="sd">        operation on the file data.</span>
+
+<span class="sd">        :return: ``True`` if the children must be processed, ``False`` otherwise.</span>
+<span class="sd">        :rtype: ``bool``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Spell.branchentry"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.Spell.branchentry">[docs]</a>    <span class="k">def</span> <span class="nf">branchentry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">branch</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Cast the spell on the given branch. First called with branch equal to</span>
+<span class="sd">        :attr:`data`&#39;s children, then the grandchildren, and so on.</span>
+<span class="sd">        The default implementation simply returns ``True``.</span>
+
+<span class="sd">        Typically, you will override this function to perform an operation</span>
+<span class="sd">        on a particular block type and/or to stop recursion at particular</span>
+<span class="sd">        block types.</span>
+
+<span class="sd">        :param branch: The branch to cast the spell on.</span>
+<span class="sd">        :type branch: :class:`~pyffi.utils.graph.GlobalNode`</span>
+<span class="sd">        :return: ``True`` if the children must be processed, ``False`` otherwise.</span>
+<span class="sd">        :rtype: ``bool``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Spell.branchexit"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.Spell.branchexit">[docs]</a>    <span class="k">def</span> <span class="nf">branchexit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">branch</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Cast a spell on the given branch, after all its children,</span>
+<span class="sd">        grandchildren, have been processed, if :meth:`branchentry` returned</span>
+<span class="sd">        ``True`` on the given branch.</span>
+
+<span class="sd">        Typically, you will override this function to perform a particular</span>
+<span class="sd">        operation on a block type, but you rely on the fact that the children</span>
+<span class="sd">        must have been processed first.</span>
+
+<span class="sd">        :param branch: The branch to cast the spell on.</span>
+<span class="sd">        :type branch: :class:`~pyffi.utils.graph.GlobalNode`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Spell.dataexit"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.Spell.dataexit">[docs]</a>    <span class="k">def</span> <span class="nf">dataexit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Called after all blocks have been processed, if :meth:`dataentry`</span>
+<span class="sd">        returned ``True``.</span>
+
+<span class="sd">        Typically, you will override this function to perform a final spell</span>
+<span class="sd">        operation, such as writing back the file in a special way, or making a</span>
+<span class="sd">        summary log.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Spell.toastentry"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.Spell.toastentry">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">toastentry</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">toaster</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Called just before the toaster starts processing</span>
+<span class="sd">        all files. If it returns ``False``, then the spell is not used.</span>
+<span class="sd">        The default implementation simply returns ``True``.</span>
+
+<span class="sd">        For example, if the spell only acts on a particular block type, but</span>
+<span class="sd">        that block type is excluded, then you can use this function to flag</span>
+<span class="sd">        that this spell can be skipped. You can also use this function to</span>
+<span class="sd">        initialize statistics data to be aggregated from files, to</span>
+<span class="sd">        initialize a log file, and so.</span>
+
+<span class="sd">        :param toaster: The toaster this spell is called from.</span>
+<span class="sd">        :type toaster: :class:`Toaster`</span>
+<span class="sd">        :return: ``True`` if the spell applies, ``False`` otherwise.</span>
+<span class="sd">        :rtype: ``bool``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Spell.toastexit"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.Spell.toastexit">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">toastexit</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">toaster</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Called when the toaster has finished processing</span>
+<span class="sd">        all files.</span>
+
+<span class="sd">        :param toaster: The toaster this spell is called from.</span>
+<span class="sd">        :type toaster: :class:`Toaster`</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">get_toast_stream</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">toaster</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">test_exists</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the stream that the toaster will write to. The</span>
+<span class="sd">        default implementation calls ``toaster.get_toast_stream``, but</span>
+<span class="sd">        spells that write to different file(s) can override this</span>
+<span class="sd">        method.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">toaster</span><span class="o">.</span><span class="n">get_toast_stream</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">test_exists</span><span class="o">=</span><span class="n">test_exists</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">append_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">report</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reports</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reports</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reports</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">report</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SpellGroupBase"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.SpellGroupBase">[docs]</a><span class="k">class</span> <span class="nc">SpellGroupBase</span><span class="p">(</span><span class="n">Spell</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class for grouping spells. This implements all the spell grouping</span>
+<span class="sd">    functions that fall outside of the actual recursing (:meth:`__init__`,</span>
+<span class="sd">    :meth:`toastentry`, :meth:`_datainspect`, :meth:`datainspect`, and :meth:`toastexit`).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">SPELLCLASSES</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="sd">&quot;&quot;&quot;List of :class:`Spell`\ s of this group (not instantiated).&quot;&quot;&quot;</span>
+
+    <span class="n">ACTIVESPELLCLASSES</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="sd">&quot;&quot;&quot;List of active spells of this group (not instantiated).</span>
+<span class="sd">    This list is automatically built when :meth:`toastentry` is called.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">spells</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="sd">&quot;&quot;&quot;List of active spell instances.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">toaster</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the spell data for all given spells.</span>
+
+<span class="sd">        :param toaster: The toaster this spell is called from.</span>
+<span class="sd">        :type toaster: :class:`Toaster`</span>
+<span class="sd">        :param data: The file data.</span>
+<span class="sd">        :type data: :class:`pyffi.object_models.FileFormat.Data`</span>
+<span class="sd">        :param stream: The file stream.</span>
+<span class="sd">        :type stream: ``file``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># call base class constructor</span>
+        <span class="n">Spell</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">toaster</span><span class="o">=</span><span class="n">toaster</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">)</span>
+        <span class="c1"># set up the list of spells</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spells</span> <span class="o">=</span> <span class="p">[</span><span class="n">spellclass</span><span class="p">(</span><span class="n">toaster</span><span class="o">=</span><span class="n">toaster</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">)</span>
+                       <span class="k">for</span> <span class="n">spellclass</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ACTIVESPELLCLASSES</span><span class="p">]</span>
+
+<div class="viewcode-block" id="SpellGroupBase.datainspect"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.SpellGroupBase.datainspect">[docs]</a>    <span class="k">def</span> <span class="nf">datainspect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Inspect every spell with L{Spell.datainspect} and keep</span>
+<span class="sd">        those spells that must be cast.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spells</span> <span class="o">=</span> <span class="p">[</span><span class="n">spell</span> <span class="k">for</span> <span class="n">spell</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spells</span>
+                       <span class="k">if</span> <span class="n">spell</span><span class="o">.</span><span class="n">datainspect</span><span class="p">()]</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spells</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SpellGroupBase.toastentry"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.SpellGroupBase.toastentry">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">toastentry</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">toaster</span><span class="p">):</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">ACTIVESPELLCLASSES</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">spellclass</span> <span class="k">for</span> <span class="n">spellclass</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">SPELLCLASSES</span>
+            <span class="k">if</span> <span class="n">spellclass</span><span class="o">.</span><span class="n">toastentry</span><span class="p">(</span><span class="n">toaster</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">ACTIVESPELLCLASSES</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SpellGroupBase.toastexit"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.SpellGroupBase.toastexit">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">toastexit</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">toaster</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">spellclass</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">ACTIVESPELLCLASSES</span><span class="p">:</span>
+            <span class="n">spellclass</span><span class="o">.</span><span class="n">toastexit</span><span class="p">(</span><span class="n">toaster</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="SpellGroupSeriesBase"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.SpellGroupSeriesBase">[docs]</a><span class="k">class</span> <span class="nc">SpellGroupSeriesBase</span><span class="p">(</span><span class="n">SpellGroupBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class for running spells in series.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SpellGroupSeriesBase.recurse"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.SpellGroupSeriesBase.recurse">[docs]</a>    <span class="k">def</span> <span class="nf">recurse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">branch</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Recurse spells in series.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">spell</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spells</span><span class="p">:</span>
+            <span class="n">spell</span><span class="o">.</span><span class="n">recurse</span><span class="p">(</span><span class="n">branch</span><span class="p">)</span></div>
+
+    <span class="c1"># the following functions must NEVER be called in series of spells</span>
+    <span class="c1"># everything is handled by the recurse function</span>
+
+<div class="viewcode-block" id="SpellGroupSeriesBase.branchinspect"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.SpellGroupSeriesBase.branchinspect">[docs]</a>    <span class="k">def</span> <span class="nf">branchinspect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">branch</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;use recurse&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SpellGroupSeriesBase.branchentry"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.SpellGroupSeriesBase.branchentry">[docs]</a>    <span class="k">def</span> <span class="nf">branchentry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">branch</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;use recurse&quot;</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">dataexit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;use recurse&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SpellGroupSeriesBase.dataentry"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.SpellGroupSeriesBase.dataentry">[docs]</a>    <span class="k">def</span> <span class="nf">dataentry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;use recurse&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SpellGroupSeriesBase.dataexit"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.SpellGroupSeriesBase.dataexit">[docs]</a>    <span class="k">def</span> <span class="nf">dataexit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;use recurse&quot;</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">changed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">spell</span><span class="o">.</span><span class="n">changed</span> <span class="k">for</span> <span class="n">spell</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spells</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SpellGroupParallelBase"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.SpellGroupParallelBase">[docs]</a><span class="k">class</span> <span class="nc">SpellGroupParallelBase</span><span class="p">(</span><span class="n">SpellGroupBase</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class for running spells in parallel (that is, with only</span>
+<span class="sd">    a single recursion in the tree).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+<div class="viewcode-block" id="SpellGroupParallelBase.branchinspect"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.SpellGroupParallelBase.branchinspect">[docs]</a>    <span class="k">def</span> <span class="nf">branchinspect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">branch</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Inspect spells with :meth:`Spell.branchinspect` (not all checks are</span>
+<span class="sd">        executed, only keeps going until a spell inspection returns ``True``).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">spell</span><span class="o">.</span><span class="n">branchinspect</span><span class="p">(</span><span class="n">branch</span><span class="p">)</span> <span class="k">for</span> <span class="n">spell</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spells</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SpellGroupParallelBase.branchentry"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.SpellGroupParallelBase.branchentry">[docs]</a>    <span class="k">def</span> <span class="nf">branchentry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">branch</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Run all spells.&quot;&quot;&quot;</span>
+        <span class="c1"># not using any: we want all entry code to be executed</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">([</span><span class="n">spell</span><span class="o">.</span><span class="n">branchentry</span><span class="p">(</span><span class="n">branch</span><span class="p">)</span> <span class="k">for</span> <span class="n">spell</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spells</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="SpellGroupParallelBase.branchexit"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.SpellGroupParallelBase.branchexit">[docs]</a>    <span class="k">def</span> <span class="nf">branchexit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">branch</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">spell</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spells</span><span class="p">:</span>
+             <span class="n">spell</span><span class="o">.</span><span class="n">branchexit</span><span class="p">(</span><span class="n">branch</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SpellGroupParallelBase.dataentry"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.SpellGroupParallelBase.dataentry">[docs]</a>    <span class="k">def</span> <span class="nf">dataentry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Look into every spell with :meth:`Spell.dataentry`.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spells</span> <span class="o">=</span> <span class="p">[</span><span class="n">spell</span> <span class="k">for</span> <span class="n">spell</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spells</span>
+                       <span class="k">if</span> <span class="n">spell</span><span class="o">.</span><span class="n">dataentry</span><span class="p">()]</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spells</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="SpellGroupParallelBase.dataexit"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.SpellGroupParallelBase.dataexit">[docs]</a>    <span class="k">def</span> <span class="nf">dataexit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Look into every spell with :meth:`Spell.dataexit`.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">spell</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spells</span><span class="p">:</span>
+            <span class="n">spell</span><span class="o">.</span><span class="n">dataexit</span><span class="p">()</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">changed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">spell</span><span class="o">.</span><span class="n">changed</span> <span class="k">for</span> <span class="n">spell</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spells</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="SpellGroupSeries"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.SpellGroupSeries">[docs]</a><span class="k">def</span> <span class="nf">SpellGroupSeries</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class factory for grouping spells in series.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">spellclass</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">for</span> <span class="n">spellclass</span> <span class="ow">in</span> <span class="n">args</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">SpellGroupSeriesBase</span><span class="p">,),</span>
+                <span class="p">{</span><span class="s2">&quot;SPELLCLASSES&quot;</span><span class="p">:</span> <span class="n">args</span><span class="p">,</span>
+                 <span class="s2">&quot;SPELLNAME&quot;</span><span class="p">:</span>
+                     <span class="s2">&quot; | &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">spellclass</span><span class="o">.</span><span class="n">SPELLNAME</span> <span class="k">for</span> <span class="n">spellclass</span> <span class="ow">in</span> <span class="n">args</span><span class="p">),</span>
+                 <span class="s2">&quot;READONLY&quot;</span><span class="p">:</span> 
+                      <span class="nb">all</span><span class="p">(</span><span class="n">spellclass</span><span class="o">.</span><span class="n">READONLY</span> <span class="k">for</span> <span class="n">spellclass</span> <span class="ow">in</span> <span class="n">args</span><span class="p">)})</span></div>
+
+
+<div class="viewcode-block" id="SpellGroupParallel"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.SpellGroupParallel">[docs]</a><span class="k">def</span> <span class="nf">SpellGroupParallel</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Class factory for grouping spells in parallel.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">spellclass</span><span class="o">.</span><span class="vm">__name__</span> <span class="k">for</span> <span class="n">spellclass</span> <span class="ow">in</span> <span class="n">args</span><span class="p">),</span>
+                <span class="p">(</span><span class="n">SpellGroupParallelBase</span><span class="p">,),</span>
+                <span class="p">{</span><span class="s2">&quot;SPELLCLASSES&quot;</span><span class="p">:</span> <span class="n">args</span><span class="p">,</span>
+                 <span class="s2">&quot;SPELLNAME&quot;</span><span class="p">:</span>
+                     <span class="s2">&quot; &amp; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">spellclass</span><span class="o">.</span><span class="n">SPELLNAME</span> <span class="k">for</span> <span class="n">spellclass</span> <span class="ow">in</span> <span class="n">args</span><span class="p">),</span>
+                 <span class="s2">&quot;READONLY&quot;</span><span class="p">:</span> 
+                      <span class="nb">all</span><span class="p">(</span><span class="n">spellclass</span><span class="o">.</span><span class="n">READONLY</span> <span class="k">for</span> <span class="n">spellclass</span> <span class="ow">in</span> <span class="n">args</span><span class="p">)})</span></div>
+
+<div class="viewcode-block" id="SpellApplyPatch"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.SpellApplyPatch">[docs]</a><span class="k">class</span> <span class="nc">SpellApplyPatch</span><span class="p">(</span><span class="n">Spell</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A spell for applying a patch on files.&quot;&quot;&quot;</span>
+
+    <span class="n">SPELLNAME</span> <span class="o">=</span> <span class="s2">&quot;applypatch&quot;</span>
+
+<div class="viewcode-block" id="SpellApplyPatch.datainspect"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.SpellApplyPatch.datainspect">[docs]</a>    <span class="k">def</span> <span class="nf">datainspect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;There is no need to read the whole file, so we apply the patch</span>
+<span class="sd">        already at inspection stage, and stop the spell process by returning</span>
+<span class="sd">        ``False``.</span>
+<span class="sd">    </span>
+<span class="sd">        :return: ``False``</span>
+<span class="sd">        :rtype: ``bool``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># get the patch command (if there is one)</span>
+        <span class="n">patchcmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">toaster</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;patchcmd&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">patchcmd</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;must specify a patch command&quot;</span><span class="p">)</span>
+        <span class="c1"># first argument is always the stream, by convention</span>
+        <span class="n">oldfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stream</span>
+        <span class="n">oldfilename</span> <span class="o">=</span> <span class="n">oldfile</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">newfilename</span> <span class="o">=</span> <span class="n">oldfilename</span> <span class="o">+</span> <span class="s2">&quot;.patched&quot;</span>
+        <span class="n">patchfilename</span> <span class="o">=</span> <span class="n">oldfilename</span> <span class="o">+</span> <span class="s2">&quot;.patch&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">toaster</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s2">&quot;writing </span><span class="si">%s</span><span class="s2">...&quot;</span> <span class="o">%</span> <span class="n">newfilename</span><span class="p">)</span>
+        <span class="c1"># close all files before calling external command</span>
+        <span class="n">oldfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="n">patchcmd</span><span class="p">,</span> <span class="n">oldfilename</span><span class="p">,</span> <span class="n">newfilename</span><span class="p">,</span> <span class="n">patchfilename</span><span class="p">])</span>
+
+        <span class="c1"># do not go further, spell is done</span>
+        <span class="k">return</span> <span class="kc">False</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">fake_logger</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Simple logger for testing.&quot;&quot;&quot;</span>
+    <span class="n">level</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_log</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">level_str</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+        <span class="c1"># do not actually log, just print</span>
+        <span class="k">if</span> <span class="n">level</span> <span class="o">&gt;=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">level</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;pyffi.toaster:</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">level_str</span><span class="p">,</span> <span class="n">msg</span><span class="p">))</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">error</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">ERROR</span><span class="p">,</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">warn</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span> <span class="s2">&quot;WARNING&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span> <span class="s2">&quot;INFO&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">debug</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">_log</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">,</span> <span class="s2">&quot;DEBUG&quot;</span><span class="p">,</span> <span class="n">msg</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">setLevel</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">level</span><span class="p">):</span>
+        <span class="bp">cls</span><span class="o">.</span><span class="n">level</span> <span class="o">=</span> <span class="n">level</span>
+
+
+<span class="k">def</span> <span class="nf">_toaster_job</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;For multiprocessing. This function creates a new toaster, with the</span>
+<span class="sd">    given options and spells, and calls the toaster on filename.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">class</span> <span class="nc">multiprocessing_fake_logger</span><span class="p">(</span><span class="n">fake_logger</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Simple logger which works well along with multiprocessing on all platforms.&quot;&quot;&quot;</span>
+        <span class="nd">@classmethod</span>
+        <span class="k">def</span> <span class="nf">_log</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">level</span><span class="p">,</span> <span class="n">level_str</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+            <span class="c1"># do not actually log, just print</span>
+            <span class="k">if</span> <span class="n">level</span> <span class="o">&gt;=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">level</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;pyffi.toaster:</span><span class="si">%i</span><span class="s2">:</span><span class="si">%s</span><span class="s2">:</span><span class="si">%s</span><span class="s2">&quot;</span>
+                      <span class="o">%</span> <span class="p">(</span><span class="n">multiprocessing</span><span class="o">.</span><span class="n">current_process</span><span class="p">()</span><span class="o">.</span><span class="n">pid</span><span class="p">,</span>
+                         <span class="n">level_str</span><span class="p">,</span> <span class="n">msg</span><span class="p">))</span>
+
+    <span class="n">toasterclass</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">spellnames</span> <span class="o">=</span> <span class="n">args</span>
+    <span class="n">toaster</span> <span class="o">=</span> <span class="n">toasterclass</span><span class="p">(</span><span class="n">options</span><span class="o">=</span><span class="n">options</span><span class="p">,</span> <span class="n">spellnames</span><span class="o">=</span><span class="n">spellnames</span><span class="p">,</span>
+                           <span class="n">logger</span><span class="o">=</span><span class="n">multiprocessing_fake_logger</span><span class="p">)</span>
+
+    <span class="c1"># toast entry code</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">toaster</span><span class="o">.</span><span class="n">spellclass</span><span class="o">.</span><span class="n">toastentry</span><span class="p">(</span><span class="n">toaster</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;pyffi.toaster:</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="s2">&quot;Spell does not apply! quiting early...&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="c1"># toast single file</span>
+    <span class="n">stream</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rb&#39;</span> <span class="k">if</span> <span class="n">toaster</span><span class="o">.</span><span class="n">spellclass</span><span class="o">.</span><span class="n">READONLY</span> <span class="k">else</span> <span class="s1">&#39;r+b&#39;</span><span class="p">)</span>
+    <span class="n">toaster</span><span class="o">.</span><span class="n">_toast</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+
+    <span class="c1"># toast exit code</span>
+    <span class="n">toaster</span><span class="o">.</span><span class="n">spellclass</span><span class="o">.</span><span class="n">toastexit</span><span class="p">(</span><span class="n">toaster</span><span class="p">)</span>
+
+<span class="c1"># CPU_COUNT is used for default number of jobs</span>
+<span class="k">if</span> <span class="n">multiprocessing</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">CPU_COUNT</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span>
+    <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
+        <span class="n">CPU_COUNT</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">CPU_COUNT</span> <span class="o">=</span> <span class="mi">1</span>
+
+
+<div class="viewcode-block" id="Toaster"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.Toaster">[docs]</a><span class="k">class</span> <span class="nc">Toaster</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Toaster base class. Toasters run spells on large quantities of files.</span>
+<span class="sd">    They load each file and pass the data structure to any number of spells.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">FILEFORMAT</span> <span class="o">=</span> <span class="n">pyffi</span><span class="o">.</span><span class="n">object_models</span><span class="o">.</span><span class="n">FileFormat</span>
+    <span class="sd">&quot;&quot;&quot;The file format class (a subclass of</span>
+<span class="sd">    :class:`~pyffi.object_models.FileFormat`).&quot;&quot;&quot;</span>
+
+    <span class="n">SPELLS</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="sd">&quot;&quot;&quot;List of all available :class:`~pyffi.spells.Spell` classes.&quot;&quot;&quot;</span>
+
+    <span class="n">EXAMPLES</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Some examples which describe typical use of the toaster.&quot;&quot;&quot;</span>
+
+    <span class="n">ALIASDICT</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="sd">&quot;&quot;&quot;Dictionary with aliases for spells.&quot;&quot;&quot;</span>
+
+    <span class="n">DEFAULT_OPTIONS</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">raisetesterror</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">pause</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">exclude</span><span class="o">=</span><span class="p">[],</span> <span class="n">include</span><span class="o">=</span><span class="p">[],</span> <span class="n">examples</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">spells</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">interactive</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">helpspell</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dryrun</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">arg</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">createpatch</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">applypatch</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">diffcmd</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">patchcmd</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">series</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">skip</span><span class="o">=</span><span class="p">[],</span> <span class="n">only</span><span class="o">=</span><span class="p">[],</span>
+        <span class="n">jobs</span><span class="o">=</span><span class="n">CPU_COUNT</span><span class="p">,</span> <span class="n">refresh</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span>
+        <span class="n">sourcedir</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">destdir</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="n">archives</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">resume</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">gccollect</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">inifile</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;List of spell classes of the particular :class:`Toaster` instance.&quot;&quot;&quot;</span>
+
+    <span class="n">options</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="sd">&quot;&quot;&quot;The options of the toaster, as ``dict``.&quot;&quot;&quot;</span>
+
+    <span class="n">spellnames</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="sd">&quot;&quot;&quot;A list of the names of the spells.&quot;&quot;&quot;</span>
+
+    <span class="n">top</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Name of the top folder to toast.&quot;&quot;&quot;</span>
+
+    <span class="n">indent</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="sd">&quot;&quot;&quot;An ``int`` which describes the current indentation level for messages.&quot;&quot;&quot;</span>
+
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;pyffi.toaster&quot;</span><span class="p">)</span>
+    <span class="sd">&quot;&quot;&quot;A :class:`logging.Logger` for toaster log messages.&quot;&quot;&quot;</span>
+
+    <span class="n">include_types</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="sd">&quot;&quot;&quot;Tuple of types corresponding to the include key of :attr:`options`.&quot;&quot;&quot;</span>
+
+    <span class="n">exclude_types</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="sd">&quot;&quot;&quot;Tuple of types corresponding to the exclude key of :attr:`options`.&quot;&quot;&quot;</span>
+
+    <span class="n">only_regexs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="sd">&quot;&quot;&quot;Tuple of regular expressions corresponding to the only key of :attr:`options`.&quot;&quot;&quot;</span>
+
+    <span class="n">skip_regexs</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="sd">&quot;&quot;&quot;Tuple of regular expressions corresponding to the skip key of :attr:`options`.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spellclass</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">spellnames</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">logger</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the toaster.</span>
+
+<span class="sd">        :param spellclass: Deprecated, use spellnames.</span>
+<span class="sd">        :type spellclass: :class:`Spell`</span>
+<span class="sd">        :param options: The options (as keyword arguments).</span>
+<span class="sd">        :type options: ``dict``</span>
+<span class="sd">        :param spellnames: List of names of spells.</span>
+<span class="sd">        :type spellnames: ``list`` of ``str``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_OPTIONS</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spellnames</span> <span class="o">=</span> <span class="n">spellnames</span> <span class="k">if</span> <span class="n">spellnames</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">logger</span><span class="p">:</span>
+            <span class="c1"># override default logger</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logger</span>
+        <span class="k">if</span> <span class="n">options</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indent</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># update options and spell class</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_options</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">spellnames</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_spellclass</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># deprecated</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spellclass</span> <span class="o">=</span> <span class="n">spellclass</span>
+        <span class="c1"># track which files toasted succesfully, and which did not</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">files_done</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">files_skipped</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">files_failed</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_update_options</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Synchronize some fields with given options.&quot;&quot;&quot;</span>
+        <span class="c1"># set verbosity level (also of self.logger, in case of a custom one)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;verbose&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;pyffi&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;verbose&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;pyffi&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;pyffi&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+        <span class="c1"># check errors</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;createpatch&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;applypatch&quot;</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;options --diff and --patch are mutually exclusive&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;diffcmd&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;createpatch&quot;</span><span class="p">]):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;option --diff-cmd can only be used with --diff&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;patchcmd&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="ow">not</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;applypatch&quot;</span><span class="p">]):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;option --patch-cmd can only be used with --patch&quot;</span><span class="p">)</span>
+        <span class="c1"># multiprocessing available?</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">multiprocessing</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;jobs&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;multiprocessing not supported on this platform&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;jobs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="c1"># update include and exclude types</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">include_types</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">FILEFORMAT</span><span class="p">,</span> <span class="n">block_type</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">block_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;include&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exclude_types</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">FILEFORMAT</span><span class="p">,</span> <span class="n">block_type</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">block_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;exclude&quot;</span><span class="p">])</span>
+        <span class="c1"># update skip and only regular expressions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">skip_regexs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+            <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">regex</span><span class="p">)</span> <span class="k">for</span> <span class="n">regex</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;skip&quot;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">only_regexs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+            <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">regex</span><span class="p">)</span> <span class="k">for</span> <span class="n">regex</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;only&quot;</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">_update_spellclass</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update spell class from given list of spell names.&quot;&quot;&quot;</span>
+        <span class="c1"># get spell classes</span>
+        <span class="n">spellclasses</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">spellnames</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;no spells specified&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">spellname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">spellnames</span><span class="p">:</span>
+            <span class="c1"># convert old names</span>
+            <span class="k">if</span> <span class="n">spellname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ALIASDICT</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;The </span><span class="si">%s</span><span class="s2"> spell is deprecated and will be removed&quot;</span>
+                    <span class="s2">&quot; from a future release; use the </span><span class="si">%s</span><span class="s2"> spell as a&quot;</span>
+                    <span class="s2">&quot; replacement&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">spellname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ALIASDICT</span><span class="p">[</span><span class="n">spellname</span><span class="p">]))</span>
+                <span class="n">spellname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ALIASDICT</span><span class="p">[</span><span class="n">spellname</span><span class="p">]</span>
+            <span class="c1"># find the spell</span>
+            <span class="n">spellklasses</span> <span class="o">=</span> <span class="p">[</span><span class="n">spellclass</span> <span class="k">for</span> <span class="n">spellclass</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">SPELLS</span>
+                            <span class="k">if</span> <span class="n">spellclass</span><span class="o">.</span><span class="n">SPELLNAME</span> <span class="o">==</span> <span class="n">spellname</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">spellklasses</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> is not a known spell&quot;</span> <span class="o">%</span> <span class="n">spellname</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">spellklasses</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;multiple spells are called </span><span class="si">%s</span><span class="s2"> (BUG?)&quot;</span> <span class="o">%</span> <span class="n">spellname</span><span class="p">)</span>
+            <span class="n">spellclasses</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">spellklasses</span><span class="p">)</span>
+        <span class="c1"># create group of spells</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">spellclasses</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;series&quot;</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">spellclass</span> <span class="o">=</span> <span class="n">SpellGroupSeries</span><span class="p">(</span><span class="o">*</span><span class="n">spellclasses</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">spellclass</span> <span class="o">=</span> <span class="n">SpellGroupParallel</span><span class="p">(</span><span class="o">*</span><span class="n">spellclasses</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spellclass</span> <span class="o">=</span> <span class="n">spellclasses</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Toaster.msg"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.Toaster.msg">[docs]</a>    <span class="k">def</span> <span class="nf">msg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Write log message with :meth:`logger.info`, taking into account</span>
+<span class="sd">        :attr:`indent`.</span>
+
+<span class="sd">        :param message: The message to write.</span>
+<span class="sd">        :type message: ``str``</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">message</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  &quot;</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">indent</span> <span class="o">+</span> <span class="n">line</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Toaster.msgblockbegin"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.Toaster.msgblockbegin">[docs]</a>    <span class="k">def</span> <span class="nf">msgblockbegin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Acts like :meth:`msg`, but also increases :attr:`indent` after writing the</span>
+<span class="sd">        message.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indent</span> <span class="o">+=</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="Toaster.msgblockend"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.Toaster.msgblockend">[docs]</a>    <span class="k">def</span> <span class="nf">msgblockend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Acts like :meth:`msg`, but also decreases :attr:`indent` before writing the</span>
+<span class="sd">        message, but if the message argument is ``None``, then no message is</span>
+<span class="sd">        printed.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indent</span> <span class="o">-=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="n">message</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Toaster.is_admissible_branch_class"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.Toaster.is_admissible_branch_class">[docs]</a>    <span class="k">def</span> <span class="nf">is_admissible_branch_class</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">branchtype</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Helper function which checks whether a given branch type should</span>
+<span class="sd">        have spells cast on it or not, based in exclude and include options.</span>
+
+<span class="sd">        &gt;&gt;&gt; from pyffi.formats.nif import NifFormat</span>
+<span class="sd">        &gt;&gt;&gt; class MyToaster(Toaster):</span>
+<span class="sd">        ...     FILEFORMAT = NifFormat</span>
+<span class="sd">        &gt;&gt;&gt; toaster = MyToaster() # no include or exclude: all admissible</span>
+<span class="sd">        &gt;&gt;&gt; toaster.is_admissible_branch_class(NifFormat.NiProperty)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; toaster.is_admissible_branch_class(NifFormat.NiNode)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; toaster = MyToaster(options={&quot;include&quot;: [&quot;NiProperty&quot;, &quot;NiNode&quot;], &quot;exclude&quot;: [&quot;NiMaterialProperty&quot;, &quot;NiLODNode&quot;]})</span>
+<span class="sd">        &gt;&gt;&gt; toaster.is_admissible_branch_class(NifFormat.NiProperty)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; toaster.is_admissible_branch_class(NifFormat.NiNode)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; toaster.is_admissible_branch_class(NifFormat.NiAVObject)</span>
+<span class="sd">        False</span>
+<span class="sd">        &gt;&gt;&gt; toaster.is_admissible_branch_class(NifFormat.NiLODNode)</span>
+<span class="sd">        False</span>
+<span class="sd">        &gt;&gt;&gt; toaster.is_admissible_branch_class(NifFormat.NiSwitchNode)</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; toaster.is_admissible_branch_class(NifFormat.NiMaterialProperty)</span>
+<span class="sd">        False</span>
+<span class="sd">        &gt;&gt;&gt; toaster.is_admissible_branch_class(NifFormat.NiAlphaProperty)</span>
+<span class="sd">        True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># print(&quot;checking %s&quot; % branchtype.__name__) # debug</span>
+        <span class="c1"># check that block is not in exclude...</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">branchtype</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">exclude_types</span><span class="p">):</span>
+            <span class="c1"># not excluded!</span>
+            <span class="c1"># check if it is included</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_types</span><span class="p">:</span>
+                <span class="c1"># if no include list is given, then assume included by default</span>
+                <span class="c1"># so, the block is admissible</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">elif</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">branchtype</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">include_types</span><span class="p">):</span>
+                <span class="c1"># included as well! the block is admissible</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="c1"># not admissible</span>
+        <span class="c1"># print(&quot;not admissible&quot;) # debug</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="Toaster.parse_inifile"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.Toaster.parse_inifile">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">parse_inifile</span><span class="p">(</span><span class="n">option</span><span class="p">,</span> <span class="n">opt</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">parser</span><span class="p">,</span> <span class="n">toaster</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes spell classes and options from an ini file.&quot;&quot;&quot;</span>
+        <span class="n">ini_parser</span> <span class="o">=</span> <span class="n">ConfigParser</span><span class="p">()</span>
+        <span class="c1"># read config file(s)</span>
+        <span class="n">ini_parser</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="c1"># process all options</span>
+        <span class="k">if</span> <span class="n">ini_parser</span><span class="o">.</span><span class="n">has_section</span><span class="p">(</span><span class="s2">&quot;options&quot;</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">opt_str</span><span class="p">,</span> <span class="n">opt_values</span> <span class="ow">in</span> <span class="n">ini_parser</span><span class="o">.</span><span class="n">items</span><span class="p">(</span><span class="s2">&quot;options&quot;</span><span class="p">):</span>
+                <span class="n">option</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">_long_opt</span><span class="p">[</span><span class="s2">&quot;--&quot;</span> <span class="o">+</span> <span class="n">opt_str</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">opt_value</span> <span class="ow">in</span> <span class="n">shlex</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">opt_values</span><span class="p">):</span>
+                    <span class="n">option</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">opt_str</span><span class="p">,</span> <span class="n">opt_value</span><span class="p">,</span> <span class="n">parser</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">parser</span><span class="p">)</span>
+        <span class="c1"># get spells and top folder</span>
+        <span class="k">if</span> <span class="n">ini_parser</span><span class="o">.</span><span class="n">has_section</span><span class="p">(</span><span class="s2">&quot;main&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">ini_parser</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s2">&quot;main&quot;</span><span class="p">,</span> <span class="s2">&quot;spell&quot;</span><span class="p">):</span>
+                <span class="n">toaster</span><span class="o">.</span><span class="n">spellnames</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">ini_parser</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;main&quot;</span><span class="p">,</span> <span class="s2">&quot;spell&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">ini_parser</span><span class="o">.</span><span class="n">has_option</span><span class="p">(</span><span class="s2">&quot;main&quot;</span><span class="p">,</span> <span class="s2">&quot;folder&quot;</span><span class="p">):</span>
+                <span class="n">toaster</span><span class="o">.</span><span class="n">top</span> <span class="o">=</span> <span class="n">ini_parser</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;main&quot;</span><span class="p">,</span> <span class="s2">&quot;folder&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Toaster.cli"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.Toaster.cli">[docs]</a>    <span class="k">def</span> <span class="nf">cli</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Command line interface: initializes spell classes and options from</span>
+<span class="sd">        the command line, and run the :meth:`toast` method.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># parse options and positional arguments</span>
+        <span class="n">usage</span> <span class="o">=</span> <span class="s2">&quot;%prog [options] &lt;spell1&gt; &lt;spell2&gt; ... &lt;file&gt;|&lt;folder&gt;&quot;</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;Apply the spells &lt;spell1&gt;, &lt;spell2&gt;, and so on,&quot;</span>
+            <span class="s2">&quot; on &lt;file&gt;, or recursively on &lt;folder&gt;.&quot;</span><span class="p">)</span>
+        <span class="n">errormessage_numargs</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;incorrect number of arguments (use the --help option for help)&quot;</span><span class="p">)</span>
+
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">optparse</span><span class="o">.</span><span class="n">OptionParser</span><span class="p">(</span>
+            <span class="n">usage</span><span class="p">,</span>
+            <span class="n">version</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%%</span><span class="s2">prog (PyFFI </span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="n">pyffi</span><span class="o">.</span><span class="n">__version__</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+            <span class="s2">&quot;--archives&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;archives&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;also parse files inside archives&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+            <span class="s2">&quot;-a&quot;</span><span class="p">,</span> <span class="s2">&quot;--arg&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;arg&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+            <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;ARG&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;pass argument ARG to each spell&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+            <span class="s2">&quot;--dest-dir&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;destdir&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+            <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;DESTDIR&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;write files to DESTDIR&quot;</span>
+            <span class="s2">&quot; instead of overwriting the original;&quot;</span>
+            <span class="s2">&quot; this is done by replacing SOURCEDIR by DESTDIR&quot;</span>
+            <span class="s2">&quot; in all source file paths&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+            <span class="s2">&quot;--diff&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;createpatch&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span>
+            <span class="s2">&quot;write a binary patch&quot;</span>
+            <span class="s2">&quot; instead of overwriting the original&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+            <span class="s2">&quot;--diff-cmd&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;diffcmd&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+            <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;CMD&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;use CMD as diff command; this command must accept precisely&quot;</span>
+            <span class="s2">&quot; 3 arguments: &#39;CMD oldfile newfile patchfile&#39;.&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+            <span class="s2">&quot;--dry-run&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;dryrun&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span>
+            <span class="s2">&quot;save modification to temporary file&quot;</span>
+            <span class="s2">&quot; instead of overwriting the original&quot;</span>
+            <span class="s2">&quot; (for debugging)&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+            <span class="s2">&quot;--examples&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;examples&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;show examples of usage and exit&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+            <span class="s2">&quot;--help-spell&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;helpspell&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;show help specific to the given spells&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+            <span class="s2">&quot;-i&quot;</span><span class="p">,</span> <span class="s2">&quot;--include&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;include&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;append&quot;</span><span class="p">,</span>
+            <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;BLOCK&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;include only block type BLOCK in spell; if this option is&quot;</span>
+                 <span class="s2">&quot; not specified, then all block types are included except&quot;</span>
+                 <span class="s2">&quot; those specified under --exclude; include multiple block&quot;</span>
+                 <span class="s2">&quot; types by specifying this option more than once&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+            <span class="s2">&quot;--ini-file&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;inifile&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;callback&quot;</span><span class="p">,</span>
+            <span class="n">callback</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parse_inifile</span><span class="p">,</span>
+            <span class="n">callback_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;toaster&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="p">},</span>
+            <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;FILE&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;read all options from FILE; if specified, all other arguments&quot;</span>
+                 <span class="s2">&quot; are ignored; to take options from multiple ini files, specify&quot;</span>
+                 <span class="s2">&quot; more than once&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+            <span class="s2">&quot;-j&quot;</span><span class="p">,</span> <span class="s2">&quot;--jobs&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;jobs&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;int&quot;</span><span class="p">,</span>
+            <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;JOBS&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;allow JOBS jobs at once [default: </span><span class="si">%d</span><span class="s2">efault]&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+            <span class="s2">&quot;--noninteractive&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;interactive&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_false&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;non-interactive session (overwrites files without warning)&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+            <span class="s2">&quot;--only&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;only&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;append&quot;</span><span class="p">,</span>
+            <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;REGEX&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;only toast files whose names&quot;</span>
+                 <span class="s2">&quot; (i) contain the regular expression REGEX, and&quot;</span>
+                 <span class="s2">&quot; (ii) do not contain any regular expression specified with --skip;&quot;</span>
+                 <span class="s2">&quot; if specified multiple times, the expressions are &#39;ored&#39;&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+            <span class="s2">&quot;--overwrite&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;resume&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_false&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;overwrite existing files (also see --resume)&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+            <span class="s2">&quot;--patch&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;applypatch&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;apply all binary patches&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+            <span class="s2">&quot;--patch-cmd&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;patchcmd&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+            <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;CMD&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;use CMD as patch command; this command must accept precisely &quot;</span>
+                 <span class="s2">&quot;3 arguments: &#39;CMD oldfile newfile patchfile&#39;.&quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+            <span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="s2">&quot;--pause&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;pause&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;pause when done&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+            <span class="s2">&quot;--prefix&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;prefix&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+            <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;PREFIX&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;prepend PREFIX to file name when saving modification&quot;</span>
+                 <span class="s2">&quot; instead of overwriting the original&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+            <span class="s2">&quot;-r&quot;</span><span class="p">,</span> <span class="s2">&quot;--raise&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;raisetesterror&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;raise exception on errors during the spell (for debugging)&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+            <span class="s2">&quot;--refresh&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;refresh&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;int&quot;</span><span class="p">,</span>
+            <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;REFRESH&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;start new process pool every JOBS * REFRESH files&quot;</span>
+                 <span class="s2">&quot; if JOBS is 2 or more&quot;</span>
+                 <span class="s2">&quot; (when processing a large number of files, this prevents&quot;</span>
+                 <span class="s2">&quot; leaking memory on some operating systems) [default: </span><span class="si">%d</span><span class="s2">efault]&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+            <span class="s2">&quot;--resume&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;resume&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;do not overwrite existing files&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+            <span class="s2">&quot;--series&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;series&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;run spells in series rather than in parallel&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+            <span class="s2">&quot;--skip&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;skip&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;append&quot;</span><span class="p">,</span>
+            <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;REGEX&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;skip all files whose names contain the regular expression REGEX&quot;</span>
+                 <span class="s2">&quot; (takes precedence over --only);&quot;</span>
+                 <span class="s2">&quot; if specified multiple times, the expressions are &#39;ored&#39;&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+            <span class="s2">&quot;--source-dir&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;sourcedir&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+            <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;SOURCEDIR&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;see --dest-dir&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+            <span class="s2">&quot;--spells&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;spells&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;list all spells and exit&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+            <span class="s2">&quot;--suffix&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;suffix&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+            <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;SUFFIX&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;append SUFFIX to file name when saving modification&quot;</span>
+                 <span class="s2">&quot; instead of overwriting the original&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+            <span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;verbose&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;int&quot;</span><span class="p">,</span>
+            <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;LEVEL&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;verbosity level: 0, 1, or 2 [default: </span><span class="si">%d</span><span class="s2">efault]&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+            <span class="s2">&quot;-x&quot;</span><span class="p">,</span> <span class="s2">&quot;--exclude&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;exclude&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;append&quot;</span><span class="p">,</span>
+            <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;BLOCK&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;exclude block type BLOCK from spell; exclude multiple&quot;</span>
+                 <span class="s2">&quot; block types by specifying this option more than once&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_option</span><span class="p">(</span>
+            <span class="s2">&quot;--gccollect&quot;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;gccollect&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;run garbage collector after every spell&quot;</span>
+                 <span class="s2">&quot; (slows down toaster but may save memory)&quot;</span><span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="o">**</span><span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">DEFAULT_OPTIONS</span><span class="p">))</span>
+        <span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+        <span class="c1"># convert options to dictionary</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">optionname</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">options</span><span class="p">):</span>
+            <span class="c1"># skip default attributes of optparse.Values</span>
+            <span class="k">if</span> <span class="n">optionname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">optparse</span><span class="o">.</span><span class="n">Values</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="n">optionname</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">options</span><span class="p">,</span> <span class="n">optionname</span><span class="p">)</span>
+
+        <span class="c1"># update options</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_options</span><span class="p">()</span>
+
+        <span class="c1"># check if we had examples and/or spells: quit</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">spells</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">spellclass</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">SPELLS</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">spellclass</span><span class="o">.</span><span class="n">SPELLNAME</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">examples</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">EXAMPLES</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># check if we are applying patches</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">applypatch</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;when using --patch, do not specify a spell&quot;</span><span class="p">)</span>
+            <span class="c1"># set spell class to applying patch</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spellclass</span> <span class="o">=</span> <span class="n">SpellApplyPatch</span>
+            <span class="c1"># set top</span>
+            <span class="k">if</span> <span class="n">args</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">top</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">top</span><span class="p">:</span>
+                <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;no folder or file specified&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># get spell names and top</span>
+            <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">helpspell</span><span class="p">:</span>
+                <span class="c1"># special case: --spell-help would not have a top specified</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">spellnames</span> <span class="o">=</span> <span class="n">args</span><span class="p">[:]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_update_spellclass</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spellclass</span><span class="o">.</span><span class="vm">__doc__</span><span class="p">)</span>
+                <span class="k">return</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="p">:</span>
+                <span class="c1"># no args: error if no top or no spells</span>
+                <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">top</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">spellnames</span><span class="p">):</span>
+                    <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">errormessage_numargs</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># single argument is top, error if no spells</span>
+                <span class="k">if</span> <span class="ow">not</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spellnames</span><span class="p">):</span>
+                    <span class="n">parser</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">errormessage_numargs</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">top</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># all arguments, except the last one, are spells</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">spellnames</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">args</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                <span class="c1"># last argument is top</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">top</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="c1"># update the spell class</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_spellclass</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;archives&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">toast</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">top</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">toast_archives</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">top</span><span class="p">)</span>
+
+        <span class="c1"># signal the end</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Finished.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">pause</span> <span class="ow">and</span> <span class="n">options</span><span class="o">.</span><span class="n">interactive</span><span class="p">:</span>
+            <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Press enter...&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Toaster.inspect_filename"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.Toaster.inspect_filename">[docs]</a>    <span class="k">def</span> <span class="nf">inspect_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns whether to toast a filename or not, based on</span>
+<span class="sd">        skip_regexs and only_regexs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">regex</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">for</span> <span class="n">regex</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">skip_regexs</span><span class="p">):</span>
+            <span class="c1"># found some --skip regex, so do not toast</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">only_regexs</span><span class="p">:</span>
+            <span class="c1"># --only not specified: then by default take all files</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">regex</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span> <span class="k">for</span> <span class="n">regex</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">only_regexs</span><span class="p">):</span>
+            <span class="c1"># found at least one --only regex, so toast</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># no --only found, so do not toast</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="Toaster.toast"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.Toaster.toast">[docs]</a>    <span class="k">def</span> <span class="nf">toast</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Walk over all files in a directory tree and cast spells</span>
+<span class="sd">        on every file.</span>
+
+<span class="sd">        :param top: The directory or file to toast.</span>
+<span class="sd">        :type top: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">def</span> <span class="nf">file_pools</span><span class="p">(</span><span class="n">chunksize</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Helper function which generates list of files, sorted by size,</span>
+<span class="sd">            in chunks of given size.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">all_files</span> <span class="o">=</span> <span class="n">pyffi</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span>
+                <span class="n">top</span><span class="p">,</span> <span class="n">onerror</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">re_filename</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">FILEFORMAT</span><span class="o">.</span><span class="n">RE_FILENAME</span><span class="p">)</span>
+            <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="c1"># fetch chunksize files from all files</span>
+                <span class="n">file_pool</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">filename</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">filename</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                        <span class="nb">range</span><span class="p">(</span><span class="n">chunksize</span><span class="p">),</span> <span class="n">all_files</span><span class="p">)]</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">file_pool</span><span class="p">:</span>
+                    <span class="c1"># done!</span>
+                    <span class="k">break</span>
+                <span class="c1"># sort files by size</span>
+                <span class="n">file_pool</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getsize</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="k">yield</span> <span class="n">file_pool</span>
+
+        <span class="c1"># toast entry code</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">spellclass</span><span class="o">.</span><span class="n">toastentry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s2">&quot;spell does not apply! quiting early...&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># some defaults are different from the defaults defined in</span>
+        <span class="c1"># the cli function: these defaults are reasonable for when the</span>
+        <span class="c1"># toaster is called NOT from the command line</span>
+        <span class="c1"># whereas the cli function defines defaults that are reasonable</span>
+        <span class="c1"># when the toaster is called from the command line</span>
+        <span class="c1"># in particular, when calling from the command line, the script</span>
+        <span class="c1"># is much more verbose by default</span>
+
+        <span class="n">pause</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pause&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        
+        <span class="c1"># do not ask for confirmation (!= cli default)</span>
+        <span class="n">interactive</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;interactive&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">dryrun</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dryrun&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">prefix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;prefix&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">suffix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;suffix&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">destdir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;destdir&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">sourcedir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sourcedir&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">createpatch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;createpatch&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">applypatch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;applypatch&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="n">jobs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;jobs&quot;</span><span class="p">,</span> <span class="n">CPU_COUNT</span><span class="p">)</span>
+
+        <span class="c1"># get source directory if not specified</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">sourcedir</span><span class="p">:</span>
+            <span class="c1"># set default source directory</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">top</span><span class="p">):</span>
+                <span class="n">sourcedir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">top</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">sourcedir</span> <span class="o">=</span> <span class="n">top</span>
+            <span class="c1"># store the option (so spells can use it)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;sourcedir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sourcedir</span>
+
+        <span class="c1"># check that top starts with sourcedir</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">top</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">sourcedir</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;invalid --source-dir: </span><span class="si">%s</span><span class="s2"> does not start with </span><span class="si">%s</span><span class="s2">&quot;</span>
+                <span class="o">%</span> <span class="p">(</span><span class="n">top</span><span class="p">,</span> <span class="n">sourcedir</span><span class="p">))</span>
+
+        <span class="c1"># warning</span>
+        <span class="k">if</span> <span class="p">((</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">spellclass</span><span class="o">.</span><span class="n">READONLY</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">dryrun</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">prefix</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">createpatch</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="n">interactive</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">suffix</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="n">destdir</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;This script will modify your files, in particular if something goes wrong it may destroy them.&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;Make a backup of your files before running this script.&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Are you sure that you want to proceed? [n/y] &quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;Y&quot;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Script aborted by user.&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">pause</span><span class="p">:</span>
+                    <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Press enter...&quot;</span><span class="p">)</span>
+                <span class="k">return</span>
+
+        <span class="c1"># walk over all streams, and create a data instance for each of them</span>
+        <span class="c1"># inspect the file but do not yet read in full</span>
+        <span class="k">if</span> <span class="n">jobs</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">stream</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">FILEFORMAT</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">top</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;rb&#39;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">spellclass</span><span class="o">.</span><span class="n">READONLY</span> <span class="k">else</span> <span class="s1">&#39;r+b&#39;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_toast</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;gccollect&quot;</span><span class="p">]:</span>
+                    <span class="c1"># force free memory (helps when parsing many files)</span>
+                    <span class="n">gc</span><span class="o">.</span><span class="n">collect</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">chunksize</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;refresh&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;jobs&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s2">&quot;toasting with </span><span class="si">%i</span><span class="s2"> threads in chunks of </span><span class="si">%i</span><span class="s2"> files&quot;</span>
+                     <span class="o">%</span> <span class="p">(</span><span class="n">jobs</span><span class="p">,</span> <span class="n">chunksize</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">file_pool</span> <span class="ow">in</span> <span class="n">file_pools</span><span class="p">(</span><span class="n">chunksize</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;process file pool:&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">file_pool</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;  &quot;</span> <span class="o">+</span> <span class="n">filename</span><span class="p">)</span>
+                <span class="k">with</span> <span class="n">concurrent</span><span class="o">.</span><span class="n">futures</span><span class="o">.</span><span class="n">ProcessPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="n">jobs</span><span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
+                    <span class="nb">list</span><span class="p">(</span><span class="n">executor</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+                        <span class="n">_toaster_job</span><span class="p">,</span>
+                        <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">spellnames</span><span class="p">)</span>
+                         <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">file_pool</span><span class="p">)))</span>
+
+        <span class="c1"># toast exit code</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spellclass</span><span class="o">.</span><span class="n">toastexit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Toaster.toast_archives"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.Toaster.toast_archives">[docs]</a>    <span class="k">def</span> <span class="nf">toast_archives</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Toast all files in all archives.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">FILEFORMAT</span><span class="o">.</span><span class="n">ARCHIVE_CLASSES</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No known archives contain this file format.&quot;</span><span class="p">)</span>
+        <span class="c1"># walk over all files, and pick archives as we go</span>
+        <span class="k">for</span> <span class="n">filename_in</span> <span class="ow">in</span> <span class="n">pyffi</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">top</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">ARCHIVE_CLASS</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">FILEFORMAT</span><span class="o">.</span><span class="n">ARCHIVE_CLASSES</span><span class="p">:</span>
+                <span class="c1"># check if extension matches</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">ARCHIVE_CLASS</span><span class="o">.</span><span class="n">RE_FILENAME</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">filename_in</span><span class="p">):</span>
+                    <span class="k">continue</span>
+                <span class="c1"># open the archive</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">archive_in</span> <span class="o">=</span> <span class="n">ARCHIVE_CLASS</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">filename_in</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;archive format not recognized, skipped&quot;</span><span class="p">)</span>
+                    <span class="k">continue</span>
+                <span class="c1"># toast all members in the archive</span>
+                <span class="c1"># and save them to a temporary archive as we go</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">spellclass</span><span class="o">.</span><span class="n">READONLY</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">archive_in</span><span class="o">.</span><span class="n">get_members</span><span class="p">():</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_toast_member</span><span class="p">(</span><span class="n">member</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">file_out</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryFile</span><span class="p">()</span>
+                    <span class="n">archive_out</span> <span class="o">=</span> <span class="n">ARCHIVE_CLASS</span><span class="o">.</span><span class="n">Data</span><span class="p">(</span><span class="n">fileobj</span><span class="o">=</span><span class="n">file_out</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">member</span> <span class="ow">in</span> <span class="n">archive_in</span><span class="o">.</span><span class="n">get_members</span><span class="p">():</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_toast</span><span class="p">(</span><span class="n">member</span><span class="p">)</span>
+                        <span class="n">archive_out</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">member</span><span class="p">)</span>
+                    <span class="n">archive_out</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                <span class="n">archive_in</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">_toast</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Run toaster on particular stream and data.</span>
+<span class="sd">        Used as helper function.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># inspect the file name</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">inspect_filename</span><span class="p">(</span><span class="n">stream</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s2">&quot;=== </span><span class="si">%s</span><span class="s2"> (skipped) ===&quot;</span> <span class="o">%</span> <span class="n">stream</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">files_skipped</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">stream</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="c1"># check if file exists</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;resume&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">spellclass</span><span class="o">.</span><span class="n">get_toast_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">test_exists</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s2">&quot;=== </span><span class="si">%s</span><span class="s2"> (already done) ===&quot;</span> <span class="o">%</span> <span class="n">stream</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="k">return</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">FILEFORMAT</span><span class="o">.</span><span class="n">Data</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">msgblockbegin</span><span class="p">(</span><span class="s2">&quot;=== </span><span class="si">%s</span><span class="s2"> ===&quot;</span> <span class="o">%</span> <span class="n">stream</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># inspect the file (reads only the header)</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">inspect</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+
+            <span class="c1"># create spell instance</span>
+            <span class="n">spell</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spellclass</span><span class="p">(</span><span class="n">toaster</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">stream</span><span class="p">)</span>
+            
+            <span class="c1"># inspect the spell instance</span>
+            <span class="k">if</span> <span class="n">spell</span><span class="o">.</span><span class="n">_datainspect</span><span class="p">()</span> <span class="ow">and</span> <span class="n">spell</span><span class="o">.</span><span class="n">datainspect</span><span class="p">():</span>
+                <span class="c1"># read the full file</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+                
+                <span class="c1"># cast the spell on the data tree</span>
+                <span class="n">spell</span><span class="o">.</span><span class="n">recurse</span><span class="p">()</span>
+
+                <span class="c1"># save file back to disk if not readonly and the spell</span>
+                <span class="c1"># changed the file</span>
+                <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">spellclass</span><span class="o">.</span><span class="n">READONLY</span><span class="p">)</span> <span class="ow">and</span> <span class="n">spell</span><span class="o">.</span><span class="n">changed</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;createpatch&quot;</span><span class="p">]:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">writepatch</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">files_done</span><span class="p">[</span><span class="n">stream</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">spell</span><span class="o">.</span><span class="n">reports</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">expt</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">files_failed</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">stream</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;FAILED ON </span><span class="si">{0}</span><span class="s2"> - with the follow exception&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">stream</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;EXPT MSG : &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">expt</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;If you were running a spell that came with PyFFI&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Please report this issue - https://github.com/niftools/pyffi/issues&quot;</span><span class="p">)</span>
+            <span class="c1"># if raising test errors, reraise the exception</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;raisetesterror&quot;</span><span class="p">]:</span>
+                <span class="k">raise</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">msgblockend</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Toaster.get_toast_head_root_ext"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.Toaster.get_toast_head_root_ext">[docs]</a>    <span class="k">def</span> <span class="nf">get_toast_head_root_ext</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the name of where the input file *filename* would</span>
+<span class="sd">        be written to by the toaster: head, root, and extension.</span>
+
+<span class="sd">        :param filename: The name of the hypothetical file to be</span>
+<span class="sd">            toasted.</span>
+<span class="sd">        :type filename: :class:`str`</span>
+<span class="sd">        :return: The head, root, and extension of the destination, or</span>
+<span class="sd">            ``(None, None, None)`` if ``--dry-run`` is specified.</span>
+<span class="sd">        :rtype: :class:`tuple` of three :class:`str`\ s</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># first cover trivial case</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;dryrun&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+        <span class="c1"># split original file up</span>
+        <span class="n">head</span><span class="p">,</span> <span class="n">tail</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="n">root</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">tail</span><span class="p">)</span>
+        <span class="c1"># check if head sourcedir needs replacing by destdir</span>
+        <span class="c1"># and do some sanity checks if this is the case</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;destdir&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;sourcedir&quot;</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;--dest-dir specified without --source-dir&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">head</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;sourcedir&quot;</span><span class="p">]):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;invalid --source-dir: </span><span class="si">%s</span><span class="s2"> does not start with </span><span class="si">%s</span><span class="s2">&quot;</span>
+                    <span class="o">%</span> <span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;sourcedir&quot;</span><span class="p">]))</span>
+            <span class="n">head</span> <span class="o">=</span> <span class="n">head</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;sourcedir&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;destdir&quot;</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">head</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;prefix&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">root</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;suffix&quot;</span><span class="p">],</span> <span class="n">ext</span></div>
+
+<div class="viewcode-block" id="Toaster.get_toast_stream"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.Toaster.get_toast_stream">[docs]</a>    <span class="k">def</span> <span class="nf">get_toast_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">test_exists</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calls :meth:`get_toast_head_root_ext(filename)`</span>
+<span class="sd">        to determine the name of the toast file, and return</span>
+<span class="sd">        a stream for writing accordingly.</span>
+
+<span class="sd">        Then return a stream where result can be written to, or</span>
+<span class="sd">        in case test_exists is True, test if result would overwrite a</span>
+<span class="sd">        file. More specifically, if test_exists is True, then no</span>
+<span class="sd">        streams are created, and True is returned if the file</span>
+<span class="sd">        already exists, and False is returned otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;dryrun&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">test_exists</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># temporary file never exists</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s2">&quot;writing to temporary file&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryFile</span><span class="p">()</span>
+        <span class="n">head</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_toast_head_root_ext</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">head</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">head</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">test_exists</span><span class="p">:</span>
+                <span class="c1"># path does not exist, so file definitely does</span>
+                <span class="c1"># not exist</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;creating destination path </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">head</span><span class="p">)</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">head</span><span class="p">)</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">head</span><span class="p">,</span> <span class="n">root</span> <span class="o">+</span> <span class="n">ext</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">test_exists</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s2">&quot;overwriting </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s2">&quot;writing </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">filename</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Toaster.write"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.Toaster.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Writes the data to data and raises an exception if the</span>
+<span class="sd">        write fails, but restores file if fails on overwrite.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">outstream</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spellclass</span><span class="o">.</span><span class="n">get_toast_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">stream</span> <span class="ow">is</span> <span class="n">outstream</span><span class="p">:</span>
+            <span class="c1"># make backup</span>
+            <span class="n">stream</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">backup</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">stream</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">data</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">outstream</span><span class="p">)</span>
+            <span class="k">except</span><span class="p">:</span>  <span class="c1"># not just Exception, also CTRL-C</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s2">&quot;write failed!!!&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">stream</span> <span class="ow">is</span> <span class="n">outstream</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s2">&quot;attempting to restore original file...&quot;</span><span class="p">)</span>
+                    <span class="n">stream</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                    <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">backup</span><span class="p">)</span>
+                    <span class="n">stream</span><span class="o">.</span><span class="n">truncate</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">outstream_name</span> <span class="o">=</span> <span class="n">outstream</span><span class="o">.</span><span class="n">name</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s2">&quot;removing incompletely written file...&quot;</span><span class="p">)</span>
+                    <span class="n">outstream</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                    <span class="c1"># temporary streams are removed on close</span>
+                    <span class="c1"># so check if it exists before removing</span>
+                    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">outstream_name</span><span class="p">):</span>
+                        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">outstream_name</span><span class="p">)</span>
+                <span class="k">raise</span>
+            <span class="k">if</span> <span class="n">stream</span> <span class="ow">is</span> <span class="n">outstream</span><span class="p">:</span>
+                <span class="n">stream</span><span class="o">.</span><span class="n">truncate</span><span class="p">()</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="n">outstream</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Toaster.writepatch"><a class="viewcode-back" href="../../pyffi/spells/index.html#pyffi.spells.Toaster.writepatch">[docs]</a>    <span class="k">def</span> <span class="nf">writepatch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates a binary patch for the updated file.&quot;&quot;&quot;</span>
+        <span class="n">diffcmd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;diffcmd&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">diffcmd</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;must specify a diff command&quot;</span><span class="p">)</span>
+
+
+        <span class="c1"># create a temporary file that won&#39;t get deleted when closed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">options</span><span class="p">[</span><span class="s2">&quot;suffix&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;.tmp&quot;</span>
+        <span class="n">newfile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">spellclass</span><span class="o">.</span><span class="n">get_toast_stream</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">newfile</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span> <span class="c1"># not just Exception, also CTRL-C</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s2">&quot;write failed!!!&quot;</span><span class="p">)</span>
+            <span class="k">raise</span>
+        <span class="c1"># use external diff command</span>
+        <span class="n">oldfile</span> <span class="o">=</span> <span class="n">stream</span>
+        <span class="n">oldfilename</span> <span class="o">=</span> <span class="n">oldfile</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">patchfilename</span> <span class="o">=</span> <span class="n">newfile</span><span class="o">.</span><span class="n">name</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;.patch&quot;</span>
+        <span class="c1"># close all files before calling external command</span>
+        <span class="n">oldfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">newfile</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">msg</span><span class="p">(</span><span class="s2">&quot;calling </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">diffcmd</span><span class="p">)</span>
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">call</span><span class="p">([</span><span class="n">diffcmd</span><span class="p">,</span> <span class="n">oldfilename</span><span class="p">,</span> <span class="n">newfilename</span><span class="p">,</span> <span class="n">patchfilename</span><span class="p">])</span>
+        <span class="c1"># delete temporary file</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">newfilename</span><span class="p">)</span></div></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">doctest</span>
+    <span class="n">doctest</span><span class="o">.</span><span class="n">testmod</span><span class="p">(</span><span class="n">optionflags</span><span class="o">=</span><span class="n">doctest</span><span class="o">.</span><span class="n">ELLIPSIS</span><span class="p">)</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">PyFFI 2.2.4.dev4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyffi.spells</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2019, NifTools.
+      Last updated on Jan 26, 2021.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,374 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyffi.formats.dds &#8212; PyFFI 2.2.4.dev4 documentation</title>
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/classic.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PyFFI 2.2.4.dev4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyffi.formats.dds</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pyffi.formats.dds</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">:mod:`pyffi.formats.dds` --- DirectDraw Surface (.dds)</span>
+<span class="sd">======================================================</span>
+
+<span class="sd">Implementation</span>
+<span class="sd">--------------</span>
+
+<span class="sd">.. autoclass:: DdsFormat</span>
+<span class="sd">   :show-inheritance:</span>
+<span class="sd">   :members:</span>
+
+<span class="sd">Regression tests</span>
+<span class="sd">----------------</span>
+
+<span class="sd">Read a DDS file</span>
+<span class="sd">^^^^^^^^^^^^^^^</span>
+
+<span class="sd">&gt;&gt;&gt; # check and read dds file</span>
+<span class="sd">&gt;&gt;&gt; from os.path import dirname</span>
+<span class="sd">&gt;&gt;&gt; dirpath = __file__</span>
+<span class="sd">&gt;&gt;&gt; for i in range(4): #recurse up to root repo dir</span>
+<span class="sd">...     dirpath = dirname(dirpath)</span>
+<span class="sd">&gt;&gt;&gt; repo_root = dirpath</span>
+<span class="sd">&gt;&gt;&gt; format_root = os.path.join(repo_root, &#39;tests&#39;, &#39;formats&#39;, &#39;dds&#39;)</span>
+<span class="sd">&gt;&gt;&gt; file = os.path.join(format_root, &#39;test.dds&#39;)</span>
+<span class="sd">&gt;&gt;&gt; stream = open(file, &#39;rb&#39;)</span>
+<span class="sd">&gt;&gt;&gt; data = DdsFormat.Data()</span>
+<span class="sd">&gt;&gt;&gt; data.inspect(stream)</span>
+<span class="sd">&gt;&gt;&gt; data.header.pixel_format.size</span>
+<span class="sd">32</span>
+<span class="sd">&gt;&gt;&gt; data.header.height</span>
+<span class="sd">20</span>
+<span class="sd">&gt;&gt;&gt; data.read(stream)</span>
+<span class="sd">&gt;&gt;&gt; len(data.pixeldata.get_value())</span>
+<span class="sd">888</span>
+
+<span class="sd">Parse all DDS files in a directory tree</span>
+<span class="sd">^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^</span>
+
+<span class="sd">&gt;&gt;&gt; for stream, data in DdsFormat.walkData(format_root):</span>
+<span class="sd">...     try:</span>
+<span class="sd">...         # the replace call makes the doctest also pass on windows</span>
+<span class="sd">...         os_path = stream.name</span>
+<span class="sd">...         split = (os_path.split(os.sep))[-4:]</span>
+<span class="sd">...         rejoin = os.path.join(*split).replace(os.sep, &quot;/&quot;)</span>
+<span class="sd">...         print(&quot;reading %s&quot; % rejoin)</span>
+<span class="sd">...     except Exception:</span>
+<span class="sd">...         print(</span>
+<span class="sd">...             &quot;Warning: read failed due corrupt file,&quot;</span>
+<span class="sd">...             &quot; corrupt format description, or bug.&quot;) # doctest: +REPORT_NDIFF</span>
+<span class="sd">reading tests/formats/dds/test.dds</span>
+
+<span class="sd">Create a DDS file from scratch and write to file</span>
+<span class="sd">^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^</span>
+
+<span class="sd">&gt;&gt;&gt; data = DdsFormat.Data()</span>
+<span class="sd">&gt;&gt;&gt; from tempfile import TemporaryFile</span>
+<span class="sd">&gt;&gt;&gt; stream = TemporaryFile()</span>
+<span class="sd">&gt;&gt;&gt; data.write(stream)</span>
+
+<span class="sd">Get list of versions</span>
+<span class="sd">^^^^^^^^^^^^^^^^^^^^</span>
+
+<span class="sd">&gt;&gt;&gt; for vnum in sorted(DdsFormat.versions.values()):</span>
+<span class="sd">...     print(&#39;0x%08X&#39; % vnum)</span>
+<span class="sd">0x09000000</span>
+<span class="sd">0x0A000000</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># ***** BEGIN LICENSE BLOCK *****</span>
+<span class="c1">#</span>
+<span class="c1"># Copyright (c) 2007-2012, Python File Format Interface</span>
+<span class="c1"># All rights reserved.</span>
+<span class="c1">#</span>
+<span class="c1"># Redistribution and use in source and binary forms, with or without</span>
+<span class="c1"># modification, are permitted provided that the following conditions</span>
+<span class="c1"># are met:</span>
+<span class="c1">#</span>
+<span class="c1">#    * Redistributions of source code must retain the above copyright</span>
+<span class="c1">#      notice, this list of conditions and the following disclaimer.</span>
+<span class="c1">#</span>
+<span class="c1">#    * Redistributions in binary form must reproduce the above</span>
+<span class="c1">#      copyright notice, this list of conditions and the following</span>
+<span class="c1">#      disclaimer in the documentation and/or other materials provided</span>
+<span class="c1">#      with the distribution.</span>
+<span class="c1">#</span>
+<span class="c1">#    * Neither the name of the Python File Format Interface</span>
+<span class="c1">#      project nor the names of its contributors may be used to endorse</span>
+<span class="c1">#      or promote products derived from this software without specific</span>
+<span class="c1">#      prior written permission.</span>
+<span class="c1">#</span>
+<span class="c1"># THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS</span>
+<span class="c1"># &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT</span>
+<span class="c1"># LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS</span>
+<span class="c1"># FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE</span>
+<span class="c1"># COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,</span>
+<span class="c1"># INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,</span>
+<span class="c1"># BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;</span>
+<span class="c1"># LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER</span>
+<span class="c1"># CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT</span>
+<span class="c1"># LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN</span>
+<span class="c1"># ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE</span>
+<span class="c1"># POSSIBILITY OF SUCH DAMAGE.</span>
+<span class="c1">#</span>
+<span class="c1"># ***** END LICENSE BLOCK *****</span>
+
+<span class="kn">import</span> <span class="nn">struct</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">import</span> <span class="nn">pyffi.object_models.xml</span>
+<span class="kn">import</span> <span class="nn">pyffi.object_models.common</span>
+<span class="kn">from</span> <span class="nn">pyffi.object_models.xml.basic</span> <span class="kn">import</span> <span class="n">BasicBase</span>
+<span class="kn">import</span> <span class="nn">pyffi.object_models</span>
+<span class="kn">from</span> <span class="nn">pyffi.utils.graph</span> <span class="kn">import</span> <span class="n">EdgeFilter</span>
+
+<div class="viewcode-block" id="DdsFormat"><a class="viewcode-back" href="../../../pyffi/formats/dds.html#pyffi.formats.dds.DdsFormat">[docs]</a><span class="k">class</span> <span class="nc">DdsFormat</span><span class="p">(</span><span class="n">pyffi</span><span class="o">.</span><span class="n">object_models</span><span class="o">.</span><span class="n">xml</span><span class="o">.</span><span class="n">FileFormat</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This class implements the DDS format.&quot;&quot;&quot;</span>
+    <span class="n">xml_file_name</span> <span class="o">=</span> <span class="s1">&#39;dds.xml&#39;</span>
+    <span class="c1"># where to look for dds.xml and in what order:</span>
+    <span class="c1"># DDSXMLPATH env var, or DdsFormat module directory</span>
+    <span class="n">xml_file_path</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">&#39;DDSXMLPATH&#39;</span><span class="p">),</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)]</span>
+    <span class="c1"># file name regular expression match</span>
+    <span class="n">RE_FILENAME</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^.*\.dds$&#39;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+    <span class="c1"># used for comparing floats</span>
+    <span class="n">_EPSILON</span> <span class="o">=</span> <span class="mf">0.0001</span>
+
+    <span class="c1"># basic types</span>
+    <span class="nb">int</span> <span class="o">=</span> <span class="n">pyffi</span><span class="o">.</span><span class="n">object_models</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">Int</span>
+    <span class="n">uint</span> <span class="o">=</span> <span class="n">pyffi</span><span class="o">.</span><span class="n">object_models</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">UInt</span>
+    <span class="n">byte</span> <span class="o">=</span> <span class="n">pyffi</span><span class="o">.</span><span class="n">object_models</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">Byte</span>
+    <span class="n">ubyte</span> <span class="o">=</span> <span class="n">pyffi</span><span class="o">.</span><span class="n">object_models</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">UByte</span>
+    <span class="n">char</span> <span class="o">=</span> <span class="n">pyffi</span><span class="o">.</span><span class="n">object_models</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">Char</span>
+    <span class="n">short</span> <span class="o">=</span> <span class="n">pyffi</span><span class="o">.</span><span class="n">object_models</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">Short</span>
+    <span class="n">ushort</span> <span class="o">=</span> <span class="n">pyffi</span><span class="o">.</span><span class="n">object_models</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">UShort</span>
+    <span class="nb">float</span> <span class="o">=</span> <span class="n">pyffi</span><span class="o">.</span><span class="n">object_models</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">Float</span>
+    <span class="n">PixelData</span> <span class="o">=</span> <span class="n">pyffi</span><span class="o">.</span><span class="n">object_models</span><span class="o">.</span><span class="n">common</span><span class="o">.</span><span class="n">UndecodedData</span>
+
+    <span class="c1"># implementation of dds-specific basic types</span>
+
+<div class="viewcode-block" id="DdsFormat.HeaderString"><a class="viewcode-back" href="../../../pyffi/formats/dds.html#pyffi.formats.dds.DdsFormat.HeaderString">[docs]</a>    <span class="k">class</span> <span class="nc">HeaderString</span><span class="p">(</span><span class="n">BasicBase</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Basic type which implements the header of a DDS file.&quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">BasicBase</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s1">&#39;DDS&#39;</span>
+
+<div class="viewcode-block" id="DdsFormat.HeaderString.get_detail_display"><a class="viewcode-back" href="../../../pyffi/formats/dds.html#pyffi.formats.dds.DdsFormat.HeaderString.get_detail_display">[docs]</a>        <span class="k">def</span> <span class="nf">get_detail_display</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="DdsFormat.HeaderString.get_hash"><a class="viewcode-back" href="../../../pyffi/formats/dds.html#pyffi.formats.dds.DdsFormat.HeaderString.get_hash">[docs]</a>        <span class="k">def</span> <span class="nf">get_hash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Return a hash value for this value.</span>
+
+<span class="sd">            :return: An immutable object that can be used as a hash.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="DdsFormat.HeaderString.read"><a class="viewcode-back" href="../../../pyffi/formats/dds.html#pyffi.formats.dds.DdsFormat.HeaderString.read">[docs]</a>        <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Read header string from stream and check it.</span>
+
+<span class="sd">            :param stream: The stream to read from.</span>
+<span class="sd">            :type stream: file</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">hdrstr</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+            <span class="c1"># check if the string is correct</span>
+            <span class="k">if</span> <span class="n">hdrstr</span> <span class="o">!=</span> <span class="s2">&quot;DDS &quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;invalid DDS header: expected &#39;DDS &#39; but got &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">hdrstr</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DdsFormat.HeaderString.write"><a class="viewcode-back" href="../../../pyffi/formats/dds.html#pyffi.formats.dds.DdsFormat.HeaderString.write">[docs]</a>        <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Write the header string to stream.</span>
+
+<span class="sd">            :param stream: The stream to write to.</span>
+<span class="sd">            :type stream: file</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;DDS &quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="DdsFormat.HeaderString.get_size"><a class="viewcode-back" href="../../../pyffi/formats/dds.html#pyffi.formats.dds.DdsFormat.HeaderString.get_size">[docs]</a>        <span class="k">def</span> <span class="nf">get_size</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Return number of bytes the header string occupies in a file.</span>
+
+<span class="sd">            :return: Number of bytes.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="mi">4</span></div></div>
+
+<div class="viewcode-block" id="DdsFormat.version_number"><a class="viewcode-back" href="../../../pyffi/formats/dds.html#pyffi.formats.dds.DdsFormat.version_number">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">version_number</span><span class="p">(</span><span class="n">version_str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Converts version string into an integer.</span>
+
+<span class="sd">        :param version_str: The version string.</span>
+<span class="sd">        :type version_str: str</span>
+<span class="sd">        :return: A version integer.</span>
+
+<span class="sd">        &gt;&gt;&gt; hex(DdsFormat.version_number(&#39;DX10&#39;))</span>
+<span class="sd">        &#39;0xa000000&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;DX9&#39;</span><span class="p">:</span> <span class="mh">0x09000000</span><span class="p">,</span> <span class="s1">&#39;DX10&#39;</span><span class="p">:</span> <span class="mh">0x0A000000</span><span class="p">}[</span><span class="n">version_str</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="DdsFormat.Data"><a class="viewcode-back" href="../../../pyffi/formats/dds.html#pyffi.formats.dds.DdsFormat.Data">[docs]</a>    <span class="k">class</span> <span class="nc">Data</span><span class="p">(</span><span class="n">pyffi</span><span class="o">.</span><span class="n">object_models</span><span class="o">.</span><span class="n">FileFormat</span><span class="o">.</span><span class="n">Data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;A class to contain the actual dds data.&quot;&quot;&quot;</span>
+        <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="mh">0x09000000</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="n">version</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">header</span> <span class="o">=</span> <span class="n">DdsFormat</span><span class="o">.</span><span class="n">Header</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pixeldata</span> <span class="o">=</span> <span class="n">DdsFormat</span><span class="o">.</span><span class="n">PixelData</span><span class="p">()</span>
+
+            <span class="c1"># TODO refactor xml model so we can get rid of these</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">user_version</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">user_version_2</span> <span class="o">=</span> <span class="mi">0</span>
+
+<div class="viewcode-block" id="DdsFormat.Data.inspect_quick"><a class="viewcode-back" href="../../../pyffi/formats/dds.html#pyffi.formats.dds.DdsFormat.Data.inspect_quick">[docs]</a>        <span class="k">def</span> <span class="nf">inspect_quick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Quickly checks if stream contains DDS data, and gets the</span>
+<span class="sd">            version, by looking at the first 8 bytes.</span>
+
+<span class="sd">            :param stream: The stream to inspect.</span>
+<span class="sd">            :type stream: file</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">hdrstr</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">hdrstr</span> <span class="o">!=</span> <span class="s2">&quot;DDS &quot;</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not a DDS file.&quot;</span><span class="p">)</span>
+                <span class="n">size</span> <span class="o">=</span> <span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;I&quot;</span><span class="p">,</span> <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">size</span> <span class="o">==</span> <span class="mi">124</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="mh">0x09000000</span> <span class="c1"># DX9</span>
+                <span class="k">elif</span> <span class="n">size</span> <span class="o">==</span> <span class="mi">144</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">version</span> <span class="o">=</span> <span class="mh">0x0A000000</span> <span class="c1"># DX10</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="n">stream</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span></div>
+
+        <span class="c1"># overriding pyffi.object_models.FileFormat.Data methods</span>
+
+<div class="viewcode-block" id="DdsFormat.Data.inspect"><a class="viewcode-back" href="../../../pyffi/formats/dds.html#pyffi.formats.dds.DdsFormat.Data.inspect">[docs]</a>        <span class="k">def</span> <span class="nf">inspect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Quickly checks if stream contains DDS data, and reads the</span>
+<span class="sd">            header.</span>
+
+<span class="sd">            :param stream: The stream to inspect.</span>
+<span class="sd">            :type stream: file</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="n">pos</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">tell</span><span class="p">()</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">inspect_quick</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">finally</span><span class="p">:</span>
+                <span class="n">stream</span><span class="o">.</span><span class="n">seek</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DdsFormat.Data.read"><a class="viewcode-back" href="../../../pyffi/formats/dds.html#pyffi.formats.dds.DdsFormat.Data.read">[docs]</a>        <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Read a dds file.</span>
+
+<span class="sd">            :param stream: The stream from which to read.</span>
+<span class="sd">            :type stream: ``file``</span>
+<span class="sd">            :param verbose: The level of verbosity.</span>
+<span class="sd">            :type verbose: ``int``</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="c1"># read the file</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">inspect_quick</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pixeldata</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+
+            <span class="c1"># check if we are at the end of the file</span>
+            <span class="k">if</span> <span class="n">stream</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s1">&#39;end of file not reached: corrupt dds file?&#39;</span><span class="p">)</span></div>
+            
+<div class="viewcode-block" id="DdsFormat.Data.write"><a class="viewcode-back" href="../../../pyffi/formats/dds.html#pyffi.formats.dds.DdsFormat.Data.write">[docs]</a>        <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stream</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Write a dds file.</span>
+
+<span class="sd">            :param stream: The stream to which to write.</span>
+<span class="sd">            :type stream: ``file``</span>
+<span class="sd">            :param verbose: The level of verbosity.</span>
+<span class="sd">            :type verbose: ``int``</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="c1"># TODO: make sure pixel data has correct length</span>
+
+            <span class="c1"># write the file</span>
+            <span class="c1"># first header</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+            <span class="c1"># next the pixel data</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pixeldata</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span></div>
+
+        <span class="c1"># DetailNode</span>
+
+<div class="viewcode-block" id="DdsFormat.Data.get_detail_child_nodes"><a class="viewcode-back" href="../../../pyffi/formats/dds.html#pyffi.formats.dds.DdsFormat.Data.get_detail_child_nodes">[docs]</a>        <span class="k">def</span> <span class="nf">get_detail_child_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge_filter</span><span class="o">=</span><span class="n">EdgeFilter</span><span class="p">()):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">get_detail_child_nodes</span><span class="p">(</span><span class="n">edge_filter</span><span class="o">=</span><span class="n">edge_filter</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="DdsFormat.Data.get_detail_child_names"><a class="viewcode-back" href="../../../pyffi/formats/dds.html#pyffi.formats.dds.DdsFormat.Data.get_detail_child_names">[docs]</a>        <span class="k">def</span> <span class="nf">get_detail_child_names</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge_filter</span><span class="o">=</span><span class="n">EdgeFilter</span><span class="p">()):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">get_detail_child_names</span><span class="p">(</span><span class="n">edge_filter</span><span class="o">=</span><span class="n">edge_filter</span><span class="p">)</span></div></div></div>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../index.html">
+              <img class="logo" src="../../../_static/logo.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../../index.html">PyFFI 2.2.4.dev4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../../index.html" >Module code</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">pyffi.formats.dds</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2019, NifTools.
+      Last updated on Jan 26, 2021.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+    </div>
+  </body>
+</html>

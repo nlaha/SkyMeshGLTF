@@ -1,0 +1,446 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyffi.formats.tga — Targa (.tga) &#8212; PyFFI 2.2.4.dev4 documentation</title>
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    
+    <link rel="shortcut icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="pyffi.formats.tri — TRI (.tri)" href="tri.html" />
+    <link rel="prev" title="&lt;no title&gt;" href="nif.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tri.html" title="pyffi.formats.tri — TRI (.tri)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="nif.html" title="&lt;no title&gt;"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">PyFFI 2.2.4.dev4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" ><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyffi</span></code> — Interfacing block structured files</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" accesskey="U"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyffi.formats</span></code> — File format interfaces</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyffi.formats.tga</span></code> — Targa (.tga)</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <span class="target" id="module-pyffi.formats.tga"></span><div class="section" id="pyffi-formats-tga-targa-tga">
+<h1><a class="reference internal" href="#module-pyffi.formats.tga" title="pyffi.formats.tga"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyffi.formats.tga</span></code></a> — Targa (.tga)<a class="headerlink" href="#pyffi-formats-tga-targa-tga" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="implementation">
+<h2>Implementation<a class="headerlink" href="#implementation" title="Permalink to this headline">¶</a></h2>
+<dl class="py class">
+<dt id="pyffi.formats.tga.TgaFormat">
+<em class="property">class </em><code class="sig-prename descclassname">pyffi.formats.tga.</code><code class="sig-name descname">TgaFormat</code><a class="reference internal" href="../../_modules/pyffi/formats/tga.html#TgaFormat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyffi.formats.tga.TgaFormat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pyffi.object_models.xml.FileFormat</span></code></p>
+<p>This class implements the TGA format.</p>
+<dl class="py class">
+<dt id="pyffi.formats.tga.TgaFormat.ColorMapType">
+<em class="property">class </em><code class="sig-name descname">ColorMapType</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.tga.TgaFormat.ColorMapType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pyffi.object_models.xml.enum.EnumBase</span></code></p>
+<p>An unsigned 8-bit integer, describing the color map type.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pyffi.formats.tga.TgaFormat.Data">
+<em class="property">class </em><code class="sig-name descname">Data</code><a class="reference internal" href="../../_modules/pyffi/formats/tga.html#TgaFormat.Data"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyffi.formats.tga.TgaFormat.Data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../object_models.html#pyffi.object_models.FileFormat.Data" title="pyffi.object_models.FileFormat.Data"><code class="xref py py-class docutils literal notranslate"><span class="pre">pyffi.object_models.FileFormat.Data</span></code></a></p>
+<dl class="py method">
+<dt id="pyffi.formats.tga.TgaFormat.Data.get_global_child_names">
+<code class="sig-name descname">get_global_child_names</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">edge_filter</span><span class="o">=</span><span class="default_value">(True, True)</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyffi/formats/tga.html#TgaFormat.Data.get_global_child_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyffi.formats.tga.TgaFormat.Data.get_global_child_names" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyffi.formats.tga.TgaFormat.Data.get_global_child_nodes">
+<code class="sig-name descname">get_global_child_nodes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">edge_filter</span><span class="o">=</span><span class="default_value">(True, True)</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyffi/formats/tga.html#TgaFormat.Data.get_global_child_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyffi.formats.tga.TgaFormat.Data.get_global_child_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generator which yields all children of this item in the
+global view, of given edge type (default is edges of type 0).</p>
+<p>Override this method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Generator for global node children.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyffi.formats.tga.TgaFormat.Data.inspect">
+<code class="sig-name descname">inspect</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">stream</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyffi/formats/tga.html#TgaFormat.Data.inspect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyffi.formats.tga.TgaFormat.Data.inspect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quick heuristic check if stream contains Targa data,
+by looking at the first 18 bytes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>stream</strong> (<em>file</em>) – The stream to inspect.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyffi.formats.tga.TgaFormat.Data.read">
+<code class="sig-name descname">read</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">stream</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyffi/formats/tga.html#TgaFormat.Data.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyffi.formats.tga.TgaFormat.Data.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a tga file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>stream</strong> (<code class="docutils literal notranslate"><span class="pre">file</span></code>) – The stream from which to read.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyffi.formats.tga.TgaFormat.Data.write">
+<code class="sig-name descname">write</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">stream</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyffi/formats/tga.html#TgaFormat.Data.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyffi.formats.tga.TgaFormat.Data.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a tga file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>stream</strong> (<code class="docutils literal notranslate"><span class="pre">file</span></code>) – The stream to write to.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pyffi.formats.tga.TgaFormat.FooterString">
+<em class="property">class </em><code class="sig-name descname">FooterString</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">template</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">argument</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">parent</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyffi/formats/tga.html#TgaFormat.FooterString"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyffi.formats.tga.TgaFormat.FooterString" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pyffi.object_models.xml.basic.BasicBase</span></code></p>
+<p>The Targa footer signature.</p>
+<dl class="py method">
+<dt id="pyffi.formats.tga.TgaFormat.FooterString.get_hash">
+<code class="sig-name descname">get_hash</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyffi/formats/tga.html#TgaFormat.FooterString.get_hash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyffi.formats.tga.TgaFormat.FooterString.get_hash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a hash value for the signature.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>An immutable object that can be used as a hash.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyffi.formats.tga.TgaFormat.FooterString.get_size">
+<code class="sig-name descname">get_size</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">data</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyffi/formats/tga.html#TgaFormat.FooterString.get_size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyffi.formats.tga.TgaFormat.FooterString.get_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return number of bytes that the signature occupies in a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Number of bytes.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyffi.formats.tga.TgaFormat.FooterString.get_value">
+<code class="sig-name descname">get_value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyffi/formats/tga.html#TgaFormat.FooterString.get_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyffi.formats.tga.TgaFormat.FooterString.get_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get signature.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>The signature.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyffi.formats.tga.TgaFormat.FooterString.read">
+<code class="sig-name descname">read</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">stream</span></em>, <em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyffi/formats/tga.html#TgaFormat.FooterString.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyffi.formats.tga.TgaFormat.FooterString.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read signature from stream.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>stream</strong> (<em>file</em>) – The stream to read from.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyffi.formats.tga.TgaFormat.FooterString.set_value">
+<code class="sig-name descname">set_value</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyffi/formats/tga.html#TgaFormat.FooterString.set_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyffi.formats.tga.TgaFormat.FooterString.set_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set signature.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The value to assign.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyffi.formats.tga.TgaFormat.FooterString.write">
+<code class="sig-name descname">write</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">stream</span></em>, <em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyffi/formats/tga.html#TgaFormat.FooterString.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyffi.formats.tga.TgaFormat.FooterString.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write signature to stream.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>stream</strong> (<em>file</em>) – The stream to read from.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pyffi.formats.tga.TgaFormat.Image">
+<em class="property">class </em><code class="sig-name descname">Image</code><a class="reference internal" href="../../_modules/pyffi/formats/tga.html#TgaFormat.Image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyffi.formats.tga.TgaFormat.Image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pyffi.utils.graph.GlobalNode</span></code></p>
+<dl class="py method">
+<dt id="pyffi.formats.tga.TgaFormat.Image.get_detail_child_names">
+<code class="sig-name descname">get_detail_child_names</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">edge_filter</span><span class="o">=</span><span class="default_value">(True, True)</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyffi/formats/tga.html#TgaFormat.Image.get_detail_child_names"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyffi.formats.tga.TgaFormat.Image.get_detail_child_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generator which yields all child names of this item in the detail
+view.</p>
+<p>Override this method if the node has children.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Generator for detail tree child names.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>generator yielding <code class="docutils literal notranslate"><span class="pre">str</span></code>s</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyffi.formats.tga.TgaFormat.Image.get_detail_child_nodes">
+<code class="sig-name descname">get_detail_child_nodes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">edge_filter</span><span class="o">=</span><span class="default_value">(True, True)</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyffi/formats/tga.html#TgaFormat.Image.get_detail_child_nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyffi.formats.tga.TgaFormat.Image.get_detail_child_nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generator which yields all children of this item in the
+detail view (by default, all acyclic and active ones).</p>
+<p>Override this method if the node has children.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>edge_filter</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">EdgeFilter</span></code> or <code class="docutils literal notranslate"><span class="pre">type(None)</span></code>) – The edge type to include.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Generator for detail tree child nodes.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>generator yielding <code class="xref py py-class docutils literal notranslate"><span class="pre">DetailNode</span></code>s</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pyffi.formats.tga.TgaFormat.Image.read">
+<code class="sig-name descname">read</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">stream</span></em>, <em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyffi/formats/tga.html#TgaFormat.Image.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyffi.formats.tga.TgaFormat.Image.read" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="pyffi.formats.tga.TgaFormat.Image.write">
+<code class="sig-name descname">write</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">stream</span></em>, <em class="sig-param"><span class="n">data</span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyffi/formats/tga.html#TgaFormat.Image.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyffi.formats.tga.TgaFormat.Image.write" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pyffi.formats.tga.TgaFormat.ImageType">
+<em class="property">class </em><code class="sig-name descname">ImageType</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyffi.formats.tga.TgaFormat.ImageType" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">pyffi.object_models.xml.enum.EnumBase</span></code></p>
+<p>An unsigned 8-bit integer, describing the image type.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pyffi.formats.tga.TgaFormat.PixelData">
+<code class="sig-name descname">PixelData</code><a class="headerlink" href="#pyffi.formats.tga.TgaFormat.PixelData" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">pyffi.object_models.common.UndecodedData</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pyffi.formats.tga.TgaFormat.byte">
+<code class="sig-name descname">byte</code><a class="headerlink" href="#pyffi.formats.tga.TgaFormat.byte" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">pyffi.object_models.common.Byte</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pyffi.formats.tga.TgaFormat.char">
+<code class="sig-name descname">char</code><a class="headerlink" href="#pyffi.formats.tga.TgaFormat.char" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">pyffi.object_models.common.Char</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pyffi.formats.tga.TgaFormat.float">
+<code class="sig-name descname">float</code><a class="headerlink" href="#pyffi.formats.tga.TgaFormat.float" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">pyffi.object_models.common.Float</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pyffi.formats.tga.TgaFormat.int">
+<code class="sig-name descname">int</code><a class="headerlink" href="#pyffi.formats.tga.TgaFormat.int" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">pyffi.object_models.common.Int</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pyffi.formats.tga.TgaFormat.short">
+<code class="sig-name descname">short</code><a class="headerlink" href="#pyffi.formats.tga.TgaFormat.short" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">pyffi.object_models.common.Short</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pyffi.formats.tga.TgaFormat.ubyte">
+<code class="sig-name descname">ubyte</code><a class="headerlink" href="#pyffi.formats.tga.TgaFormat.ubyte" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">pyffi.object_models.common.UByte</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pyffi.formats.tga.TgaFormat.uint">
+<code class="sig-name descname">uint</code><a class="headerlink" href="#pyffi.formats.tga.TgaFormat.uint" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">pyffi.object_models.common.UInt</span></code></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="pyffi.formats.tga.TgaFormat.ushort">
+<code class="sig-name descname">ushort</code><a class="headerlink" href="#pyffi.formats.tga.TgaFormat.ushort" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">pyffi.object_models.common.UShort</span></code></p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="regression-tests">
+<h2>Regression tests<a class="headerlink" href="#regression-tests" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="read-a-tga-file">
+<h3>Read a TGA file<a class="headerlink" href="#read-a-tga-file" title="Permalink to this headline">¶</a></h3>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># check and read tga file</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">os</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">os.path</span> <span class="kn">import</span> <span class="n">dirname</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dirpath</span> <span class="o">=</span> <span class="vm">__file__</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span> <span class="c1">#recurse up to root repo dir</span>
+<span class="gp">... </span>    <span class="n">dirpath</span> <span class="o">=</span> <span class="n">dirname</span><span class="p">(</span><span class="n">dirpath</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">repo_root</span> <span class="o">=</span> <span class="n">dirpath</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">format_root</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">repo_root</span><span class="p">,</span> <span class="s1">&#39;tests&#39;</span><span class="p">,</span> <span class="s1">&#39;formats&#39;</span><span class="p">,</span> <span class="s1">&#39;tga&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">format_root</span><span class="p">,</span> <span class="s1">&#39;test.tga&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stream</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">TgaFormat</span><span class="o">.</span><span class="n">Data</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">inspect</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stream</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">width</span>
+<span class="go">60</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">header</span><span class="o">.</span><span class="n">height</span>
+<span class="go">20</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="parse-all-tga-files-in-a-directory-tree">
+<h3>Parse all TGA files in a directory tree<a class="headerlink" href="#parse-all-tga-files-in-a-directory-tree" title="Permalink to this headline">¶</a></h3>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">stream</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">TgaFormat</span><span class="o">.</span><span class="n">walkData</span><span class="p">(</span><span class="n">format_root</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">try</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="c1"># the replace call makes the doctest also pass on windows</span>
+<span class="gp">... </span>        <span class="n">os_path</span> <span class="o">=</span> <span class="n">stream</span><span class="o">.</span><span class="n">name</span>
+<span class="gp">... </span>        <span class="n">split</span> <span class="o">=</span> <span class="p">(</span><span class="n">os_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">sep</span><span class="p">))[</span><span class="o">-</span><span class="mi">4</span><span class="p">:]</span>
+<span class="gp">... </span>        <span class="n">rejoin</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="o">*</span><span class="n">split</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;/&quot;</span><span class="p">)</span>
+<span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;reading </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">rejoin</span><span class="p">)</span>
+<span class="gp">... </span>    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+<span class="gp">... </span>        <span class="nb">print</span><span class="p">(</span>
+<span class="gp">... </span>            <span class="s2">&quot;Warning: read failed due corrupt file,&quot;</span>
+<span class="gp">... </span>            <span class="s2">&quot; corrupt format description, or bug.&quot;</span><span class="p">)</span> 
+<span class="go">reading tests/formats/tga/test.tga</span>
+<span class="go">reading tests/formats/tga/test_footer.tga</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="create-a-tga-file-from-scratch-and-write-to-file">
+<h3>Create a TGA file from scratch and write to file<a class="headerlink" href="#create-a-tga-file-from-scratch-and-write-to-file" title="Permalink to this headline">¶</a></h3>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">TgaFormat</span><span class="o">.</span><span class="n">Data</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tempfile</span> <span class="kn">import</span> <span class="n">TemporaryFile</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stream</span> <span class="o">=</span> <span class="n">TemporaryFile</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">stream</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/logo.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../../index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyffi.formats.tga</span></code> — Targa (.tga)</a><ul>
+<li><a class="reference internal" href="#implementation">Implementation</a></li>
+<li><a class="reference internal" href="#regression-tests">Regression tests</a><ul>
+<li><a class="reference internal" href="#read-a-tga-file">Read a TGA file</a></li>
+<li><a class="reference internal" href="#parse-all-tga-files-in-a-directory-tree">Parse all TGA files in a directory tree</a></li>
+<li><a class="reference internal" href="#create-a-tga-file-from-scratch-and-write-to-file">Create a TGA file from scratch and write to file</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="nif.html"
+                        title="previous chapter">&lt;no title&gt;</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="tri.html"
+                        title="next chapter"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyffi.formats.tri</span></code> — TRI (.tri)</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/pyffi/formats/tga.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tri.html" title="pyffi.formats.tri — TRI (.tri)"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="nif.html" title="&lt;no title&gt;"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">PyFFI 2.2.4.dev4 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" ><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyffi</span></code> — Interfacing block structured files</a> &#187;</li>
+          <li class="nav-item nav-item-2"><a href="index.html" ><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyffi.formats</span></code> — File format interfaces</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyffi.formats.tga</span></code> — Targa (.tga)</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2019, NifTools.
+      Last updated on Jan 26, 2021.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,152 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pyffi — Interfacing block structured files &#8212; PyFFI 2.2.4.dev4 documentation</title>
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pyffi.formats — File format interfaces" href="formats/index.html" />
+    <link rel="prev" title="Installation" href="../install.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="formats/index.html" title="pyffi.formats — File format interfaces"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../install.html" title="Installation"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PyFFI 2.2.4.dev4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyffi</span></code> — Interfacing block structured files</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <span class="target" id="module-pyffi"></span><div class="section" id="pyffi-interfacing-block-structured-files">
+<h1><a class="reference internal" href="#module-pyffi" title="pyffi"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyffi</span></code></a> — Interfacing block structured files<a class="headerlink" href="#pyffi-interfacing-block-structured-files" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="formats/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyffi.formats</span></code> — File format interfaces</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="formats/index.html#supported-formats">Supported formats</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="formats/bsa.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyffi.formats.bsa</span></code> — Bethesda Archive (.bsa)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="formats/cgf.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyffi.formats.cgf</span></code> — Crytek (.cgf and .cga)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="formats/dae.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyffi.formats.dae</span></code> — COLLADA (.dae)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="formats/dds.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyffi.formats.dds</span></code> — DirectDraw Surface (.dds)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="formats/egm.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyffi.formats.egm</span></code> — EGM (.egm)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="formats/egt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyffi.formats.egt</span></code> — EGT (.egt)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="formats/esp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyffi.formats.esp</span></code> — Elder Scrolls plugin/master/save files (.esp, .esm, and .ess)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="formats/tga.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyffi.formats.tga</span></code> — Targa (.tga)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="formats/tri.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyffi.formats.tri</span></code> — TRI (.tri)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="formats/index.html#adding-new-formats">Adding new formats</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="formats/index.html#getting-started">Getting Started</a></li>
+<li class="toctree-l3"><a class="reference internal" href="formats/index.html#reading-and-writing-files">Reading and Writing Files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="formats/index.html#further-references">Further References</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="spells/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyffi.spells</span></code> — High level file operations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="spells/index.html#supported-spells">Supported spells</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="spells/cgf.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyffi.spells.cgf</span></code> —  Crytek Geometry/Animation (.cgf/.cga) spells</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spells/dds.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyffi.spells.dds</span></code> — DirectDraw Surface spells</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spells/tga.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyffi.spells.tga</span></code> — Targa spells</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="spells/index.html#adding-new-spells">Adding new spells</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spells/index.html#grouping-spells-together">Grouping spells together</a></li>
+<li class="toctree-l2"><a class="reference internal" href="spells/index.html#creating-toaster-scripts">Creating toaster scripts</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="object_models.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyffi.object_models</span></code> — File format description engines</a></li>
+</ul>
+</div>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/logo.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../install.html"
+                        title="previous chapter">Installation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="formats/index.html"
+                        title="next chapter"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyffi.formats</span></code> — File format interfaces</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/pyffi/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="formats/index.html" title="pyffi.formats — File format interfaces"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../install.html" title="Installation"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">PyFFI 2.2.4.dev4 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href=""><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyffi</span></code> — Interfacing block structured files</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2012-2019, NifTools.
+      Last updated on Jan 26, 2021.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 3.4.3.
+    </div>
+  </body>
+</html>
